@@ -1,922 +1,686 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <head>
-    <!-- Añade esto en la sección <head> de tu archivo HTML -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Películas</title>
+    <title>Saga de Películas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            background-color: #000000;
-            color: white;
-        }
+    font-family: 'Roboto', sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    margin: 0;
+    padding: 20px;
+}
 
-        header {
-            background-color: #000;
-            padding: 15px;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Tres columnas */
+    gap: 10px; /* Espacio entre las películas */
+}
 
-        header h1 {
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
+.movie {
+    text-align: center;
+}
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-        }
+.movie img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
 
-        nav ul li {
-            padding: 10px 15px;
-            cursor: pointer;
-            color: #ccc;
-            transition: color 0.3s ease;
-        }
+.movie:hover img {
+    transform: scale(1.05);
+}
 
-        nav ul li:hover {
-            color: white;
-        }
+.movie h3 {
+    font-size: 14px;
+    margin: 8px 0;
+    color: #ffcc00;
+}
 
-        nav ul li.active {
-            color: white;
-            font-weight: bold;
-        }
+/* Estilos del modal de la saga */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+}
 
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 100px 20px 20px;
-            margin-top: 60px;
-        }
+.modal-content-saga {
+    background-color: #000000; /* Fondo de la saga en color amarillo */
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    color: #000000;
+    text-align: center;
+    position: relative;
+}
 
-        .movie {
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
+.modal-content-saga img {
+    width: 100%;
+    height: auto;
+    max-width: 200px;
+    border-radius: 8px;
+    margin: 15px;
+    cursor: pointer;
+}
 
-        .movie img {
-            width: 100%;
-            border-radius: 4px;
-            transition: transform 0.3s ease;
-        }
+.modal-content-saga h3 {
+    color: #000000;
+}
 
-        .movie:hover img {
-            transform: scale(0.0);
-        }
+.modal-content-saga p {
+    margin: 10px 0;
+    color: #333333;
+    font-size: 14px;
+    line-height: 1.5;
+}
 
-        .movie p {
-            margin-top: 8px;
-            font-size: 16px;
-            color: #f0f0f0;
-        }
+.modal-content-saga p i {
+    margin-right: 8px;
+    color: #000000;
+}
 
-        .movie:hover {
-            transform: translateY(-10px);
-        }
+.close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    color: #ffffff; /* Cambié el color del "X" a blanco */
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        /* Modal para mostrar detalles de las películas */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding-top: 5px;
-        }
+.close:hover {
+    color: #ffcc00;
+}
 
-        .modal-content {
-            background-color: #1c1c1c;
-            margin: auto;
-            padding: 20px;
-            border-radius: 12px;
-            width: 80%;
-            max-width: 700px;
-            color: white;
-            text-align: center;
-        }
+.button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #ff0000;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
 
-        /* Estilo del póster con borde neón */
-        .modal-content img {
-            width: 60%;
-            max-width: 300px;
-            border-radius: 12px;
-            border: 2px solid #FF0000; /* Borde rojo */
-            box-shadow: 0 0 20px #FF0000, 0 0 40px #000000, 0 0 60px #FF000000; /* Efecto neón */
-            transition: all 0.3s ease; /* Transición suave */
-        }
+.button:hover {
+    background-color: #ff0000;
+}
 
-        .close {
-            color: white;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+/* Estilos del modal individual de la película */
+.modal-content-movie {
+    background-color: #1c1c1c; /* Fondo de la película en color oscuro */
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    color: #ffffff;
+    text-align: center;
+    position: relative; /* Añadido para que el "X" quede dentro del modal */
+}
 
-        .close:hover,
-        .close:focus {
-            color: red;
-        }
+.modal-content-movie img {
+    width: 40%;
+    height: auto;
+    max-width: 200px;
+    border-radius: 8px;
+    margin: 15px;
+    cursor: pointer;
+}
 
-        .info h2 {
-            margin-top: 20px;
-            font-size: 26px;
-        }
+.modal-content-movie h3 {
+    color: #ffffff;
+}
 
-        .info p {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #ccc;
-        }
+.modal-content-movie p {
+    margin: 10px 0;
+    color: #b0b0b0;
+    font-size: 14px;
+    line-height: 1.5;
+}
 
-        .info .link {
-            color: #FF0000;
-            margin-top: 10px;
-            display: inline-block;
-        }
-
-        @media (max-width: 1024px) {
-            .movie-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .movie-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 5px;
-                padding: 10px 10px 20px;
-                margin-top: 60px;
-            }
-
-            .modal-content {
-                width: 90%;
-            }
-        }
+.modal-content-movie p i {
+    margin-right: 8px;
+    color: #ffffff;
+}
     </style>
 </head>
 <body>
-    <header>
-        <h1>P E L Í C U L A S</h1>        
-        <nav>
-            <ul></ul>
-        </nav>
-    </header>
 
-    <div class="movie-grid">
-        <!-- Películas de acción -->
-        <div class="movie" data-category="accion" data-title="Proyecto X" data-year="2012" data-genre="Comedia" data-duration="1h 27 mins" data-synopsis="Tres estudiantes de último curso de instituto, aparentemente anónimos, deciden montar una fiesta salvaje en casa de uno de ellos, promocionándola en las redes sociales como la fiesta más loca de la temporada. Además, los chicos deciden grabarla para luego colgarla en la red. Enseguida se corre la voz y todo se hace un desmadre..." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL282cWNtMzN6Ym1rOQ==">
-            <img src="https://image.tmdb.org/t/p/original/lUPDGT3lyRrq8SvWuNWG2DP64bR.jpg" alt="Proyecto X">
-            <p></p>
-        </div>
-        <div class="movie" data-category="accion" data-title="Supercool" data-year="2007" data-genre="Comedia" data-duration="1h 58 mins" data-synopsis="En una de sus últimas noches como estudiantes del instituto, los amigos e inadaptados Evan y Seth experimentarán una legendaria odisea durante una tarde en la que intentan comprar bebida para una fiesta en la que estarán las chicas de sus sueños. En su peripecia les acompañará el indescriptible McLovin, otro amigo inadaptado que acaba de comprarse un carnet falso: su pasaporte para comprar el alcohol." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3hzb3FmZWkxOXBvNQ==">
-            <img src="https://image.tmdb.org/t/p/original/e0WomLYbl2kRHkGJcv7a6IY67ck.jpg" alt="Supercool">
-            <p></p>
-        </div>
-        <div class="movie" data-category="accion" data-title="San Andreas" data-year="2015" data-genre="Drama, Acción, Suspenso" data-duration="1h 54 mins" data-synopsis="La falla de San Andrés acaba cediendo ante las temibles fuerzas telúricas y desencadena un terremoto de magnitud 9 en California. Ante tal catástrofe, el piloto de helicóptero de búsqueda y rescate Ray y su ex esposa Emma viajan juntos desde Los Ángeles hasta San Francisco para salvar a su única hija, Blake. Pero su tortuoso viaje hacia el norte solamente es el comienzo del desomoronamiento de todo lo que creían firme en su vida." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2UxZWx1ODI0MnYxNA==">
-    <img src="https://image.tmdb.org/t/p/original/uC4uhJuyOxZQhMcJoKQWbe667Sx.jpg" alt="San Andreas">
-    <p></p>
+<h1 style="text-align: center; color: #ffffff;">S A G A S</h1>
+
+<div class="grid">
+<!-- SAGA - SON COMO NIÑOS -->
+<div class="movie" onclick="openModal('modalSonComoNinosSaga')">
+    <img src="https://image.tmdb.org/t/p/original/7nXEfV4zwd1s74B4fcOgnCW57eY.jpg" alt="SAGA - SON COMO NIÑOS">
+    <h3></h3>
+</div>
+<!-- SAGA - IT (ESO) -->
+<div class="movie" onclick="openModal('modalItSaga')">
+    <img src="https://image.tmdb.org/t/p/original/9tnrNFF450DWUQu3DzyFXVmuE8e.jpg" alt="SAGA - IT (ESO)">
+    <h3></h3>
+</div>
+<!-- SAGA - TRANSFORMERS -->
+<div class="movie" onclick="openModal('modalTransformersSaga')">
+    <img src="https://image.tmdb.org/t/p/original/634HpDF95NXzfExXfmeDNPEwT3r.jpg" alt="SAGA - TRANSFORMERS">
+    <h3></h3>
+</div>
+<!-- SAGA - EL ORIGEN DEL PLANETA DE LOS SIMIOS -->
+<div class="movie" onclick="openModal('modalOrigenPlanetaSimiosSaga')">
+    <img src="https://image.tmdb.org/t/p/original/afGkMC4HF0YtXYNkyfCgTDLFe6m.jpg" alt="SAGA - El Origen del Planeta de los Simios">
+    <h3></h3>
+</div>
+<!-- SAGA - JOKER -->
+<div class="movie" onclick="openModal('modalJokerSaga')">
+    <img src="https://image.tmdb.org/t/p/original/cI4Ng3oX0CEJiY3wMxcfszQZbcI.jpg" alt="SAGA - JOKER">
+    <h3></h3>
+</div>
+<!-- SAGA - MISIÓN DE RESCATE -->
+<div class="movie" onclick="openModal('modalMisionRescateSaga')">
+    <img src="https://image.tmdb.org/t/p/original/xU0zvW3eYTpOcqcFZohexz2miMy.jpg" alt="SAGA - MISIÓN DE RESCATE">
+    <h3></h3>
+</div>
+<div class="movie" onclick="openModal('modalSmileSaga')">
+    <img src="https://image.tmdb.org/t/p/original/pelydXk045TJ8VRC5kHMoDbD4G3.jpg" alt="SAGA - SMILE">
+    <h3></h3>
 </div>
-<div class="movie" data-category="accion" data-title="Barbie" data-year="2023" data-genre="Comedia, Aventura" data-duration="1h 54 mins" data-synopsis="Una muñeca que vive en 'Barbieland' es expulsada al mundo real por no ser lo suficientemente perfecta. Basada en la popular muñeca Barbie." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3AyeXA5cGZhcWtvMA==">
-    <img src="https://image.tmdb.org/t/p/original/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg" alt="Barbie">
-    <p></p>
-</div>
-<div class="movie" data-category="accion" data-title="IF" data-year="2024" data-genre="Comedia, Fantasía, Familia" data-duration="1h 26 mins" data-synopsis="Una joven descubre la capacidad de ver a los amigos imaginarios de las personas que han sido abandonados por los niños a los que ayudaron." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2I5djl4ODNkdGtvZw==">
-    <img src="https://image.tmdb.org/t/p/original/xbKFv4KF3sVYuWKllLlwWDmuZP7.jpg" alt="IF">
-    <p></p>
-</div>
-<div class="movie" data-category="Deportes, Drama" data-title="Garra" data-year="2022" data-genre="Drama, Comedia" data-duration="1h 58 mins" data-synopsis="Cuando un desafortunado cazatalentos de básquetbol encuentra un jugador excepcional en España, se dispone a demostrar que pueden triunfar en la NBA." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3k0YmM5cjN5ZTBmYg==">
-    <img src="https://image.tmdb.org/t/p/original/xWic7kPq13oRxYjbGLApXCnc7pz.jpg" alt="Garra">
-    <p></p>
-</div>
-<div class="movie" data-category="Deportes, Drama" data-title="Pixels" data-year="2015" data-genre="Acción, Comedia, Ciencia ficción" data-duration="1h 45 mins" data-synopsis="Unos extraterrestres malinterpretan las imágenes de las máquinas recreativas como una declaración de guerra y deciden atacar la Tierra, empleando dichos juegos como modelos para el asalto. El presidente de Estados Unidos, Will Cooper, recurre entonces a su gran amigo de la infancia y campeón de las maquinitas de los años 80, Sam Brenner, quien actualmente trabaja como instalador de sistemas de home cinema, para encabezar un equipo de expertos jugadores de su época (Dinklage y Gad). Su misión será derrotar a los alienígenas y salvar al planeta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2RoejJ4OXI0d25qdA==">
-    <img src="https://image.tmdb.org/t/p/original/tJ1llabujSXGiKC0xv5qqJyNrSm.jpg" alt="Pixels">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Spaceman" data-year="2024" data-genre="Ciencia ficcion, Aventura, Drama" data-duration="1h 48 mins" data-synopsis="Seis meses después de iniciar una solitaria misión, un astronauta enfrenta los problemas de su matrimonio con la ayuda de la misteriosa criatura que encontró en su nave." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzByZDVwZjFvMXc3aA==">
-    <img src="https://image.tmdb.org/t/p/original/x7Fniv0ktpfQinQHpQmzHJtF89m.jpg" alt="Spaceman">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Dejar el mundo atrás" data-year="2024" data-genre="Drama, Misterio, Suspenso" data-duration="2h 21 mins" data-synopsis="La escapada de una familia a una lujosa casa de alquiler da un giro siniestro cuando un ciberataque los deja incomunicados... y dos extraños llaman a la puerta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL21tOWdubHhoYjc5NQ==">
-    <img src="https://image.tmdb.org/t/p/original/29rhl1xopxA7JlGVVsf1UHfYPvN.jpg" alt="Dejar el mundo atrás">
-    <p></p>
-</div>
-<div class="movie" data-category="Romance, Comedia" data-title="Cualquiera menos tú" data-year="2023" data-genre="Comedia Romántica" data-duration="1h 43 mins" data-synopsis="Después de una primera cita increíble, la ardiente atracción de Bea y Ben se vuelve helada, hasta que se reencuentran inesperadamente en una boda en Australia. Entonces hacen lo que harían dos adultos maduros cualesquiera: pretender ser una pareja." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2Ntb3RyYm83dm50OQ==">
-    <img src="https://image.tmdb.org/t/p/original/ojpfa7K6VaUzeEYlK2ONUQsooyF.jpg" alt="Cualquiera menos tú">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Road House" data-year="2024" data-genre="Acción, Suspenso" data-duration="1h 43 mins" data-synopsis="El ex luchador de la UFC, Dalton, acepta un trabajo como guardia en un bar sobre la carretera de los Cayos de Florida, sólo para descubrir que este paraíso no es todo lo que parece." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2Ntb3RyYm83dm50OQ==">
-    <img src="https://image.tmdb.org/t/p/original/lwPsIgh98Wnpvkr3svkZwlhDrfm.jpg" alt="Road House">
-    <p></p>
-</div>
-<div class="movie" data-category="Romance, Drama" data-title="Challengers" data-year="2024" data-genre="Romance, Drama" data-duration="2h 11 mins" data-synopsis="Casada con un campeón en mala racha, la estrategia de Tashi para la redención de su marido da un giro sorprendente cuando debe enfrentarse al fracasado Patrick, su ex mejor amigo y ex novio de Tashi. A medida que sus pasados y presentes chocan, y las tensiones aumentan, Tashi debe preguntarse cuánto costará ganar." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL293dHJpazJsajcwYg==">
-    <img src="https://image.tmdb.org/t/p/original/H6vke7zGiuLsz4v4RPeReb9rsv.jpg" alt="Challengers">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Una parte de ti" data-year="2024" data-genre="Drama" data-duration="1h 40 mins" data-synopsis="Una adolescente de 17 años, Agnes, posee todo lo que sueña: ser la chica más popular de la escuela y tener novio. Entonces ocurre lo peor posible y su mundo se pone patas arriba." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzM4YWd5NzBueDJhYg==">
-    <img src="https://image.tmdb.org/t/p/original/rv3FLJ4kLoeFpL6sLSB3tCWLO9f.jpg" alt="Una parte de ti">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="La idea de tenerte" data-year="2024" data-genre="Romance, Drama, Comedia" data-duration="1h 52 mins" data-synopsis="Basada en la aclamada historia de amor contemporánea del mismo nombre, The Idea of You se centra en Solène (Anne Hathaway), una madre soltera de 40 años que comienza un romance inesperado con Hayes Campbell (Nicholas Galitzine), de 24 años, el cantante principal de August Moon, la banda de chicos más popular del planeta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzBxaG5wODR5bmdsNw==">
-    <img src="https://image.tmdb.org/t/p/original/Y5P4Q3q8nrruZ9aD3wXeJS2Plg.jpg" alt="La idea de tenerte">
-    <p></p>
-</div>
-<div class="movie" data-category="Familia" data-title="Familia Revuelta" data-year="2023" data-genre="Comedia, Fantasía, Familia" data-duration="1h 45 mins" data-synopsis="Una familia se hunde en el caos cuando un suceso cósmico intercambia el cuerpo de los padres con los de sus hijos adolescentes poco antes de Navidad." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3BoMGlkcWR3Nmo0NQ==">
-    <img src="https://image.tmdb.org/t/p/original/g8Gwitm4CtZBSYhLeSY4Z3Xwwcg.jpg" alt="Familia Revuelta">
-    <p></p>
-</div>
-<div class="movie" data-category="Suspenso" data-title="La Trampa" data-year="2024" data-genre="Suspenso, Crimen" data-duration="1h 45 mins" data-synopsis="Un padre y su hija adolescente asisten a un concierto de pop, donde se dan cuenta de que están en el centro de un evento oscuro y siniestro." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzh5czZiNXE4YWFodw==">
-    <img src="https://image.tmdb.org/t/p/original/jwoaKYVqPgYemFpaANL941EF94R.jpg" alt="La Trampa">
-    <p></p>
-</div>
-<div class="movie" data-category="Acción" data-title="Un Día Tranquilo: Día Uno" data-year="2024" data-genre="Terror, Ciencia ficción, Suspenso" data-duration="1h 41 mins" data-synopsis="Mientras la ciudad de Nueva York es invadida por criaturas alienígenas que cazan mediante el sonido, una mujer llamada Sammy lucha por sobrevivir." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzRsOGs4bHlpM3dxdg==">
-    <img src="https://image.tmdb.org/t/p/original/hU42CRk14JuPEdqZG3AWmagiPAP.jpg" alt="Un Día Tranquilo: Día Uno">
-    <p></p>
-</div>
-<div class="movie" data-category="Suspenso, Comedia, Drama" data-title="Miller's Girl" data-year="2024" data-genre="Suspenso, Comedia, Drama" data-duration="1h 33 mins" data-synopsis="Cairo, una joven de 18 años con un talento excepcional para la escritura, se ve inmersa en un enigmático juego de seducción intelectual cuando su profesor, el Sr. Miller, le asigna una tarea, que ella interpreta de tal forma que desdibuja peligrosamente los límites entre lo profesional y lo personal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzBnZWpzNjdzYmR1cw==">
-    <img src="https://image.tmdb.org/t/p/original/y9zzaN65LOO56nUGC31x9mWQzoi.jpg" alt="Miller's Girl">
-    <p></p>
-</div>
-<div class="movie" data-category="Fantasía, Acción, Aventura" data-title="Damsel" data-year="2024" data-genre="Fantasía, Acción, Aventura" data-duration="1h 49 mins" data-synopsis="Una damisela se casa con un encantador príncipe, pero el matrimonio se convierte en una odisea por la supervivencia cuando la entregan como ofrenda a un feroz dragón." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2VxeWNwaGh2OHdoZQ==">
-    <img src="https://image.tmdb.org/t/p/original/kalIlHTSoWprLf4h0R4qvF7VBj.jpg" alt="Damsel">
-    <p></p>
-</div>
-<div class="movie" data-category="Romance, Comedia" data-title="Ascenso" data-year="2024" data-genre="Romance, Comedia" data-duration="1h 45 mins" data-synopsis="Ana, la aspirante a becaria de arte, es ascendida inesperadamente a primera clase cuando su jefa la manda a un viaje de trabajo de último momento a Londres. Mientras disfruta este cómodo estilo de vida en la cabina de primera clase, conoce al apuesto y adinerado William y decide vivir su fantasía más tiempo del que debería." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3MxZmR4N3Q3YWpmMQ==">
-    <img src="https://image.tmdb.org/t/p/original/4fKjh7zJrlAcZfIfNQCDvvrT5vN.jpg" alt="Ascenso">
-    <p></p>
-</div>
-<div class="movie" data-category="Crimen, Acción, Suspenso, Drama" data-title="Rebel Ridge" data-year="2024" data-genre="Crimen, Acción, Suspenso, Drama" data-duration="2h 11 mins" data-synopsis="Un exmarine debe enfrentarse a la corrupción en un pequeño pueblo cuando la policía le confisca injustamente la bolsa con el dinero para pagar la fianza de su primo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzltYTJoYjFsNjVlbA==">
-    <img src="https://image.tmdb.org/t/p/original/xEt2GSz9z5rSVpIHMiGdtf0czyf.jpg" alt="Rebel Ridge">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama" data-title="La Ballena" data-year="2022" data-genre="Drama" data-duration="1h 56 mins" data-synopsis="Un profesor de inglés solitario que sufre de obesidad severa intenta volver a conectarse con su hija adolescente separada para tener una última oportunidad de redención." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3I1MW8zd2xxcHlvYQ==">
-    <img src="https://image.tmdb.org/t/p/original/jQ0gylJMxWSL490sy0RrPj1Lj7e.jpg" alt="La Ballena">
-    <p></p>
-</div>
-<div class="movie" data-category="Familia, Comedia" data-title="Jugando con Fuego" data-year="2019" data-genre="Familia, Comedia" data-duration="1h 36 mins" data-synopsis="Cuando el superintendente de bomberos, Jake Carson (John Cena) y su equipo de élite de expertos bomberos (Keegan-Michael Key, John Leguizamo y Tyler Mane) acuden al rescate de tres hermanos (Brianna Hildebrand, Christian Convery y Finley Rose Slater) durante un incendio forestal, se dan cuenta rápidamente de que ninguna capacitación podría prepararlos para su trabajo más desafiante hasta el momento: ser niñeras." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2QycHFjcnFzNWRmdQ==">
-    <img src="https://image.tmdb.org/t/p/original/nBLPIpReSatt1zcgVzSVzq5e581.jpg" alt="Jugando con Fuego">
-    <p></p>
-</div>
-<div class="movie" data-category="Bélica, Acción, Drama" data-title="Civil War" data-year="2024" data-genre="Bélica, Acción, Drama" data-duration="1h 49 mins" data-synopsis="En un futuro cercano, donde América está sumida en una cruenta guerra civil, un equipo de periodistas y fotógrafos de guerra emprenderá un viaje por carretera en dirección a Washington DC. Su misión: llegar antes de que las fuerzas rebeldes asalten la Casa Blanca y arrebaten el control al presidente de Estados Unidos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzlwMHZ5ZnI5aGZpdg==">
-    <img src="https://image.tmdb.org/t/p/original/lhaVFq4WHhxpTOoBfzATiE5vSEG.jpg" alt="Civil War">
-    <p></p>
-</div>
-<div class="movie" data-category="Crimen, Drama, Suspenso" data-title="Finestkind" data-year="2023" data-genre="Crimen, Drama, Suspenso" data-duration="2h 6 mins" data-synopsis="Charlie (Wallace) quiere alejarse de su aburrida vida cuando le ruega a su hermano mayor, Tom (Foster), que le deje trabajar en su barco pesquero durante el verano. No hay quien le disuada, incluso después de que su primera expedición casi acabe en desastre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzUzNno2cDU0MXNkdw==">
-    <img src="https://image.tmdb.org/t/p/original/90D6sXfbXKhDpd4S1cHICdAe8VD.jpg" alt="Finestkind">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Historia" data-title="Oppenheimer" data-year="2023" data-genre="Drama, Historia" data-duration="3h" data-synopsis="Película sobre el físico J. Robert Oppenheimer y su papel como desarrollador de la bomba atómica." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2o3NDBnaHI1Zmg0MQ==">
-    <img src="https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="Oppenheimer">
-    <p></p>
-</div>
-<div class="movie" data-category="Acción, Comedia, Crimen" data-title="Lift" data-year="2024" data-genre="Acción, Comedia, Crimen" data-duration="1h 46 mins" data-synopsis="Un ladrón y su banda se preparan para dar un golpe de altura: robar 500 millones de dólares en oro de una caja fuerte... ¡a bordo de un avión a 9000 m de altitud!" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL28xeG1oMTJnb2pjeQ==">
-    <img src="https://image.tmdb.org/t/p/original/h7wJI6mctrDJ9wMbFfgrBUTn1LT.jpg" alt="Lift">
-    <p></p>
-</div>
-<div class="movie" data-category="Romance, Drama" data-title="Culpa Mía" data-year="2023" data-genre="Romance, Drama" data-duration="1h 57 mins" data-synopsis="Noah debe dejar su ciudad, novio y amigos para mudarse a la mansión de William Leister, el flamante y rico marido de su madre Rafaela." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2RnNHk3bW41MnE4Yg==">
-    <img src="https://image.tmdb.org/t/p/original/gp31EwMH5D2bftOjscwkgTmoLAB.jpg" alt="Culpa Mía">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Historia" data-title="La sociedad de la nieve" data-year="2023" data-genre="Drama, Historia" data-duration="2h 25 mins" data-synopsis="El 13 de octubre de 1972, el vuelo 571 de la Fuerza Aérea Uruguaya, fletado para llevar a un equipo de rugby a Chile, se estrella en un glaciar en el corazón de los Andes." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3ltanBxaGJpMnF2aA==">
-    <img src="https://image.tmdb.org/t/p/original/9tkJPQb4X4VoU3S5nqLDohZijPj.jpg" alt="La sociedad de la nieve">
-    <p></p>
-</div>
-<div class="movie" data-category="Suspenso, Drama" data-title="Nowhere" data-year="2023" data-genre="Suspenso, Drama" data-duration="1h 49 mins" data-synopsis="Embarazada, sola y a la deriva en el mar, una mujer encerrada en un contenedor de mercancías trata de sobrevivir tras escapar de un país totalitario devastado." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2l3emtleDJ6Y2JtYw==">
-    <img src="https://image.tmdb.org/t/p/original/8uvCXfpaU1VveV5w9h05OxN0zdN.jpg" alt="Nowhere">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Guerra" data-title="Heroico" data-year="2023" data-genre="Drama, Suspenso" data-duration="1h 28 mins" data-synopsis="Luis, adolescente de origen nativo americano, se inscribe en un colegio militar en busca de un futuro mejor. Sus nuevos compañeros y él se ven sometidos a un sistema jerárquico brutal, en el que los alumnos veteranos humillan a los recién llegados." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL29mZTU5enpnenkydg==">
-    <img src="https://image.tmdb.org/t/p/original/tRD18JW9iKqmwkQKvzPYDQetRoI.jpg" alt="Heroico">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Inmigración, Adolescencia" data-title="Ya no estoy aquí" data-year="2019" data-genre="Drama" data-duration="1h 12 mins" data-synopsis="Después de un malentendido con una pandilla local, el joven Ulises debe cruzar la frontera para salvar la vida. Deja atrás a su banda y la cumbia, la música que adora." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3ZiZGM0djZ0OG45cA==">
-    <img src="https://image.tmdb.org/t/p/original/min2PJ67s9HUD5ZeCSKTfSgniSC.jpg" alt="Ya no estoy aquí">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Suspenso" data-title="Anónima" data-year="2021" data-genre="Drama, Romance" data-duration="1h 41 mins" data-synopsis="Después de que un mensaje de texto accidental se convierte en una amistad digital, Vale y Alex comienzan a enamorarse sin darse cuenta de que se conocieron en la vida real." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzRia3k3dzR3Nzh5dg==">
-    <img src="https://image.tmdb.org/t/p/original/1MfTZQPSC3XsSt4T8LtagnJtKHq.jpg" alt="Anónima">
-    <p></p>
-</div>
-<div class="movie" data-category="Comedia, Romance" data-title="Irish Wish" data-year="2024" data-genre="Romance, Comedia, Fantasía" data-duration="1h 33 mins" data-synopsis="El hombre ideal de Maddie está a punto de casarse con su mejor amiga. Pero cuando pide hallar el amor verdadero a una antigua roca irlandesa, su destino cambia por arte de magia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzN0NWhxaGZuaTloOA==">
-    <img src="https://image.tmdb.org/t/p/original/v4Bb70dpIIQoEnZAHnm3nzCPauU.jpg" alt="Irish Wish">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Comedia" data-title="Chicuarotes" data-year="2019" data-genre="Drama, Crimen" data-duration="1h 35 mins" data-synopsis="Chicuarotes trata acerca de ‘el Cagalera’ y ‘el Moloteco’, dos chicos que buscan desesperadamente salir de la situación y de su pueblo natal. La travesía inicia cuando un amigo de ellos les habla de la posibilidad de comprar una plaza en el sindicato de electricistas, para lo cual idean distintas formas de juntar el dinero y poderse ir junto con Sugehili, la novia de ‘el Cagalera’. Esto los lleva por una aventura juvenil que desemboca en un tornado del mundo criminal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3MxdWpoN2RvZnA4Nw==">
-    <img src="https://image.tmdb.org/t/p/original/8qCDtYCeBF7PwV42NDw2VrtNgA0.jpg" alt="Chicuarotes">
-    <p></p>
-</div>
-<div class="movie" data-category="Drama, Suspenso" data-title="Las niñas de cristal" data-year="2022" data-genre="Drama" data-duration="2h 19 mins" data-synopsis="Irene es una bailarina que trabaja en el Ballet Clásico Nacional como sustituta de la estrella protagonista. Sin embargo, un día esta fallece y es cuando la joven tendrá que estar bajo las órdenes del coreógrafo Antonio Ruz." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzVzMDI1NXF3cnd0NA==">
-    <img src="https://image.tmdb.org/t/p/original/ppF495JNP6poCCEAm4xM1nJEZzD.jpg" alt="Las niñas de cristal">
-    <p></p>
-</div>
-<div class="movie" data-category="Ciencia ficción, Acción" data-title="Al filo del mañana" data-year="2014" data-genre="Acción, Ciencia ficción" data-duration="1h 13 mins" data-synopsis="En un futuro no muy lejano, invade la Tierra una raza de extraterrestres invencibles. Al comandante William Cage, un oficial que nunca ha entrado en combate, le encargan una misión casi suicida y resulta muerto. Entra entonces en un bucle temporal, en el que se ve obligado a luchar y morir una y otra vez. Pero las múltiples batallas que libra lo hacen cada vez más hábil y eficaz en su lucha contra los alienígenas. Su compañera de combate es Rita Vrataski, una guerrera de las Fuerzas Especiales. Adaptación del manga de Hiroshi Sakurazaka." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2J3NmQzNG92NjcwMA==">
-    <img src="https://image.tmdb.org/t/p/original/xjw5trHV7Mwo61P0kCTy8paEkgO.jpg" alt="Al filo del mañana">
-    <p></p>
-</div>
-<div class="movie" data-category="Ciencia ficción, Acción" data-title="El Proyecto Adam" data-year="2022" data-genre="Aventura, Ciencia ficción" data-duration="1h 46 mins" data-synopsis="Adam Reed es un piloto de caza que viaja en el tiempo. Cuando se estrella en el año 2022, conoce a su yo de 12 años y juntos emprenden una misión para salvar el futuro." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzlzcWk5aTF5NGF0bw==">
-    <img src="https://image.tmdb.org/t/p/original/wFjboE0aFZNbVOF05fzrka9Fqyx.jpg" alt="El Proyecto Adam">
-    <p></p>
-</div>
-<div class="movie" data-category="Comedia, Acción" data-title="Baywatch" data-year="2017" data-genre="Comedia, Acción, Crimen" data-duration="2h 1 mins" data-synopsis="Mitch Buchannon, un estricto y esforzado socorrista de la antigua escuela, deberá trabajar codo con codo con el rebelde Matt Brody, un joven ex nadador olímpico caído en desgracia al que le gusta saltarse las normas. A pesar de tener personalidades opuestas, los dos socorristas deberán unir fuerzas y formar equipo. Juntos descubrirán una trama criminal, en torno a drogas y asesinos, que amenaza el futuro de la Bahía. Su objetivo será proteger la playa de su destrucción a manos de un magnate del petróleo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzRmb2w0ZmNueXcxbg==">
-    <img src="https://image.tmdb.org/t/p/original/6HE4xd8zloDqmjMZuhUCCw2UcY1.jpg" alt="Baywatch">
-    <p></p>
-</div>
-<div class="movie" data-category="Crimen, Drama, Misterio" data-title="Los asesinos de la luna" data-year="2023" data-genre="Crimen, Historia, Drama" data-duration="3h 26 mins" data-synopsis="Miembros de la tribu Osage de los Estados Unidos, son asesinados bajo misteriosas circunstancias en la década de 1920 provocando una importante investigación por el FBI involucrando a J. Edgar Hoover." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzhiMGFsMXF4cjBxYg==">
-    <img src="https://image.tmdb.org/t/p/original/dB6Krk806zeqd0YNp2ngQ9zXteH.jpg" alt="Los asesinos de la luna">
-    <p></p>
-</div>
-<div class="movie" data-category="Crimen, Drama" data-title="Los Feos" data-year="2024" data-genre="Ciencia ficción, Aventura, Acción" data-duration="1h 42 mins" data-synopsis="En una sociedad futurista, una adolescente a la espera de una operación estética obligatoria se propone encontrar a su amiga desaparecid" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL2F3MGdlazRscXl0cA==">
-    <img src="https://image.tmdb.org/t/p/original/jaUu9zHtbcFwrB5Y1DNYE09HMex.jpg" alt="Los Feos">
-    <p></p>
-</div>
-<div class="movie" data-category="Acción, Suspenso" data-title="The Killer" data-year="2023" data-genre="Crimen, Suspenso" data-duration="1h 59 mins" data-synopsis="Después de un fatídico error, un asesino se enfrenta a sus jefes y a sí mismo en una persecución internacional de castigo, según él, no es nada personal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzF6ZTdsY244YzdhaQ==">
-    <img src="https://image.tmdb.org/t/p/original/e7Jvsry47JJQruuezjU2X1Z6J77.jpg" alt="The Killer">
-    <p></p>
-</div>
-<div class="movie" data-category="Acción, Fantasía" data-title="The Crow" data-year="2024" data-genre="Acción, Fantasía, Terror" data-duration="1h 50 mins" data-synopsis="Un año después de que él y su prometida fueran asesinados, un cuervo místico devuelve a Eric a la vida para que pueda clamar su venganza." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL29mZHlnbHRldW1kMA==">
-    <img src="https://image.tmdb.org/t/p/original/58QT4cPJ2u2TqWZkterDq9q4yxQ.jpg" alt="The Crow">
-    <p></p>
-</div>
-<div class="movie" data-category="Acción, Ciencia ficción" data-title="Prey" data-year="2024" data-genre="Acción, Suspenso, Terror" data-duration="1h 26 mins" data-synopsis="Una joven pareja se ve obligada a abandonar su puesto de misioneros cristianos en el desierto del Kalahari tras ser amenazados de muerte por una banda de militantes extremistas. Tras estrellarse su avión, deben luchar contra hombres y animales por sus vidas." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzl1OGpndXo3YXdqcQ==">
-    <img src="https://image.tmdb.org/t/p/original/aOsPclgSiOqhndI2Xp2ksz2g9n6.jpg" alt="Prey">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Hasta el último hombre" data-year="2016" data-genre="Drama, Historia, Bélica" data-duration="2h 19 mins" data-synopsis="Narra la historia de Desmond Doss, un joven médico militar que participó en la sangrienta batalla de Okinawa, en el Pacífico durante la II Guerra Mundial, y se convirtió en el primer objetor de conciencia en la historia estadounidense en recibir la Medalla de Honor del Congreso. Doss quería servir a su país, pero desde pequeño se había hecho una promesa a sí mismo: no coger jamás ningún arma." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzV6bmprMmQzbGo5dg==">
-    <img src="https://image.tmdb.org/t/p/original/m3jj8IJ7uP5p4MqMzgtGW5l4ECd.jpg" alt="Hasta el último hombre">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Saltburn" data-year="2024" data-genre="Drama, Comedia, Suspenso" data-duration="2h 11 mins" data-synopsis="Mientras lucha por encontrar su lugar en la Universidad de Oxford, el estudiante Oliver Quick (Barry Keoghan) se ve arrastrado al mundo del encantador y aristocrático Felix Catton (Jacob Elordi), que le invita a Saltburn, la extensa finca de su excéntrica familia, para pasar un verano inolvidable." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3d5dnJiYXR6cDhtMw==">
-    <img src="https://image.tmdb.org/t/p/original/zGTfMwG112BC66mpaveVxoWPOaB.jpg" alt="Saltburn">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Madame Web" data-year="2024" data-genre="Acción, Fantasía" data-duration="1h 56 mins" data-synopsis="Cassandra Webb es una paramédica en Manhattan que podría tener habilidades clarividentes. Obligada a enfrentarse a sucesos que se han revelado de su pasado, crea una relación con tres jóvenes destinadas a tener un futuro poderoso... si consiguen sobrevivir a un presente mortal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3R6MTA5aG96eXV2aA==">
-    <img src="https://image.tmdb.org/t/p/original/rULWuutDcN5NvtiZi4FRPzRYWSh.jpg" alt="Madame Web">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Sociedad de Honor" data-year="2022" data-genre="Comedia" data-duration="1h 37 mins" data-synopsis="El único objetivo de Honor es entrar en Harvard. Dispuesta a hacer lo que sea necesario, Honor traza un plan para derrotar a sus tres principales competidores, hasta que las cosas dan un giro cuando inesperadamente se enamora de su mayor competidor, Michael." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lL3U2MWZ0ZGpsc29neA==">
-    <img src="https://image.tmdb.org/t/p/original/61CZ4JxyaI462sFfLPhtyzRg4vv.jpg" alt="Sociedad de Honor">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Cada Dia" data-year="2018" data-genre="Romance, Fantasía" data-duration="1h 37 mins" data-synopsis="Rhiannon es una adolescente de 16 años que se enamora de un misterioso espíritu llamado (A), que se despierta en un cuerpo diferente cada día. Sintiendo una enorme conexión, Rhiannon y A intentan verse, sin saber qué o quién les traerá el nuevo día. Cuanto más se enamoran el uno del otro, la idea de amar a alguien que es una persona diferente cada 24 horas empieza a pasarles factura, llevándoles a tomar una decisión que cambiará sus vidas para siempre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL212OHQ3cDE1b2Ezbg==">
-    <img src="https://image.tmdb.org/t/p/original/4UnME3icxSspwL0UoGZNSyyp7Xs.jpg" alt="Cada Dia">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Violet y Finch" data-year="2020" data-genre="Romance, Drama" data-duration="1h 48 mins" data-synopsis="Violet y Theodore son dos amigos cuyo encuentro cambia sus vidas para siempre. Mientras luchan por dejar atrás las cicatrices de su pasado, descubren que incluso los momentos más insignificantes pueden tener una importancia crucial en sus vidas." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2thdHRqNWpmcXhtaA==">
-    <img src="https://image.tmdb.org/t/p/original/4SafxuMKQiw4reBiWKVZJpJn80I.jpg" alt="Violet y Finch">
-    <p></p>
-</div>
-        <div class="movie" data-category="NO EDITAR" data-title="Pokémon Detective Pichaku" data-year="2019" data-genre="Acción, Aventura, Fantasía" data-duration="1h 44 mins" data-synopsis="Ryme City, una metrópoli futurista en la que los humanos y los Pokémon conviven en armonía. Tras la misteriosa desaparición de su padre, toda una leyenda en la ciudad, el joven Tim Goodman (Justice Smith) comienza una investigación para buscarle y averiguar lo que le ha sucedido. En esta misión le ayudará el adorable súper-detective Pikachu, un inteligente Pokémon que habla, aunque curiosamente el chico es el único que puede entenderle. Ambos unirán sus fuerzas y trabajarán juntos para resolver este gran misterio, con la ayuda de Lucy (Kathryn Newton), una reportera que trabaja en su primera gran historia. Será una aventura en la que descubrirán a entrañables personajes del universo Pokémon, además de una trama espeluznante que podría amenazar la convivencia pacífica de todo este universo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXNoLmNvbS9lLzBiOG9nMHhpNnkwdg==">
-    <img src="https://image.tmdb.org/t/p/original/uhWvnFgg3BNlcUz0Re1HfQqIcCD.jpg" alt="Pokémon Detective Pichaku">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="En guerra con mi abuelo" data-year="2020" data-genre="Comedia, Familia" data-duration="1h 38 mins" data-synopsis="El joven Peter se ve obligado a abandonar su habitación cuando su abuelo Ed, recientemente enviudado, se muda a su casa. Con la ayuda de sus amigos, Peter declara la guerra a su abuelo para hacerle abandonar la habitación, pero Ed es un testarudo y no va a ponérselo nada fácil." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3ZnM3I5cDJxbzJ5YQ==">
-    <img src="https://image.tmdb.org/t/p/original/tsWVxuztbOt7roV9oiLZohkLu3r.jpg" alt="En guerra con mi abuelo">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Hijos de perra" data-year="2023" data-genre="Comedia, Aventura" data-duration="1h 33 mins" data-synopsis="Dicen que el perro es el mejor amigo del hombre, pero ¿qué pasa cuando el humano en cuestión es un malnacido? En tal caso, puede que se merezca sufrir una dulce y perruna venganza. Reggie, un border terrier ingenuo y optimista hasta la médula, acaba abandonado en las despiadadas calles de la ciudad por su despreciable dueño, Doug, totalmente convencido de que todo ha sido un malentendido y que su adorado compañero de vida nunca se desentendería así de él." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3djaTVteGt3NW4xcw==">
-    <img src="https://image.tmdb.org/t/p/original/muDaKftykz9Nj1mhRheMdbuNI9Z.jpg" alt="Hijos de perra">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Parpadea dos veces" data-year="2024" data-genre="Misterio, Suspenso, Terror" data-duration="1h 42 mins" data-synopsis="Cuando el magnate de la tecnología Slater King (Channing Tatum) conoce a la camarera Frida (Naomi Ackie) en su gala de recaudación de fondos, saltan chispas. Él la invita a acompañarle a él y a sus amigos a unas vacaciones de ensueño en su isla privada. Un auténtico paraíso. Las noches salvajes se mezclan con mañanas bañadas por el sol y todo el mundo se lo pasa en grande. Nadie quiere que el viaje termine, pero cuando empiezan a suceder cosas extrañas, Frida intuye que algo anda mal en ese lugar. Tendrá que descubrir la verdad si quiere salir viva de la fiesta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2Jya3YwejF4OWwxaA==">
-    <img src="https://image.tmdb.org/t/p/original/lZGOK0I2DJSRlEPNOAFTSNxSjDD.jpg" alt="Parpadea dos veces">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Toda un vida en un año" data-year="2020" data-genre="Drama, Romance" data-duration="1h 47 mins" data-synopsis="Sigue a Daryn, un adolescente de 17 años que tras descubrir que su novia se está muriendo, decide entregarse por completo a ella en lo que le reste de vida." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2F0ZG11eDhpandnYg==">
-    <img src="https://image.tmdb.org/t/p/original/bP7u19opmHXYeTCUwGjlLldmUMc.jpg" alt="Toda un vida en un año">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Después de la Tierra" data-year="2013" data-genre="Ciencia ficción, Acción, Aventura" data-duration="1h 40 mins" data-synopsis="Tras una serie de cataclismos que forzaron a la humanidad a abandonar la Tierra, Nova Prime se convirtió en su nuevo hogar. Tras una larga misión fuera de ese planeta, el legendario general Cypher Raige regresa en compañía de su hijo Kitai. En medio de una tormenta de asteroides, la nave se avería y se estrella contra la Tierra, lugar desconocido y peligroso en el que todos los seres vivos no tienen más objetivo que eliminar a los hombres. Como Cypher ha resultado herido, Kitai debe recorrer ese mundo hostil en busca de la baliza de rescate. Siempre ha querido ser un soldado como su padre, y ahora se le presenta la oportunidad de cumplir su deseo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL25xd3JhMW9zYWhlbw==">
-    <img src="https://image.tmdb.org/t/p/original/iXMvYIlzzJBs352CfeiQcBvovZt.jpg" alt="Después de la Tierra">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="El Lobo de Wall Street" data-year="2013" data-genre="Crimen, Drama, Comedia" data-duration="2h 59 mins" data-synopsis="Película basada en hechos reales del corredor de bolsa neoyorquino Jordan Belfort. A mediados de los años 80, Belfort era un joven honrado que perseguía el sueño americano, pero pronto en la agencia de valores aprendió que lo más importante no era hacer ganar a sus clientes, sino ser ambicioso y ganar una buena comisión. Su enorme éxito y fortuna le valió el mote de *El lobo de Wall Street*. Dinero. Poder. Mujeres. Drogas. Las tentaciones abundaban y el temor a la ley era irrelevante. Jordan y su manada de lobos consideraban que la discreción era una cualidad anticuada; nunca se conformaban con lo que tenían." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3NoeThmb3NwbjBkdQ==">
-    <img src="https://image.tmdb.org/t/p/original/34m2tygAYBGqA9MXKhRDtzYd4MR.jpg" alt="El Lobo de Wall Street">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Bohemian Rhapsody" data-year="2018" data-genre="Música, Drama" data-duration="2h 15 mins" data-synopsis="Londres, 1970. El joven Farrokh (al que sus amigos llaman Freddie) vive en Londres, trabaja en el aeropuerto, estudia diseño gráfico y escribe canciones. Un día, tras escuchar al grupo Smile en un bar, se ofrece como cantante de la banda al enterarse de que se han quedado sin vocalista. Los otros miembros de Smile se llaman Brian May y Roger Taylor." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2lmNzd2a2VieGgxNQ==">
-    <img src="https://image.tmdb.org/t/p/original/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg" alt="Bohemian Rhapsody">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="La red social" data-year="2010" data-genre="Drama" data-duration="2h" data-synopsis="Mark Zuckerberg, alumno de Harvard y genio de la programación, se sienta a su ordenador y con empeño y entusiasmo comienza a desarrollar una nueva idea. En un furor de blogging y programación, lo que comenzó en la habitación de su colegio mayor pronto se convirtió en una red social global y una revolución en la comunicación. Seis años y 500 millones de amigos después, Mark Zuckerberg es el billonario más joven de la historia. Pero para este emprendedor, el éxito ha supuesto complicaciones personales y legales..." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2ZzdXlpNDY4YmgyMw==">
-    <img src="https://image.tmdb.org/t/p/original/n0ybibhJtQ5icDqTp8eRytcIHJx.jpg" alt="La red social">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Operación Cerveza" data-year="2022" data-genre="Drama, Comedia, Bélica" data-duration="2h 6 mins" data-synopsis="Nueva York, 1967. Para demostrar su apoyo a sus colegas del barrio que están combatiendo en Vietnam, Chickie Donohue (Zac Efron) decide viajar a la primera línea del frente para llevar a los soldados unas latas de su cerveza norteamericana favorita. Lo que empieza como un viaje repleto de buenas intenciones se convierte rápidamente en una aventura iniciática cuando Chickie se enfrenta a la realidad de esa controvertida guerra, y cuando el reencuentro con sus amigos de la infancia le muestra las complejidades y responsabilidades de la vida adulta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2RjY3Rzc2lvZ25ocw==">
-    <img src="https://image.tmdb.org/t/p/original/ebZLD9PD1YGU15QoY1PfVOj2x1n.jpg" alt="Operación Cerveza">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Pobres Criaturas" data-year="2023" data-genre="Ciencia ficción, Romance, Comedia" data-duration="2h 21 mins" data-synopsis="Bella Baxter es una joven revivida por el brillante y poco ortodoxo científico Dr. Godwin Baxter. Bajo la protección de Baxter, Bella está ansiosa por aprender. Hambrienta de la mundanidad que le falta, Bella se escapa con Duncan Wedderburn, un sofisticado y perverso abogado, en una aventura vertiginosa a través de los continentes. Libre de los prejuicios de su época, Bella se vuelve firme en su propósito de defender la igualdad y la liberación." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzZwcnBvb2dxaG1mZg==">
-    <img src="https://image.tmdb.org/t/p/original/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg" alt="Pobres Criaturas">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="The Fallout" data-year="2021" data-genre="Drama" data-duration="1h 36 mins" data-synopsis="Vada es una adolescente que trata de superar los efectos secundarios que sufre tras vivir una tragedia en su instituto. Tras esta experiencia, la relación con su familia y sus amigos, así como su forma de ver el mundo, cambiarán para siempre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2Fsd243emgwaXYzYg==">
-    <img src="https://image.tmdb.org/t/p/original/y94auaBWq1E7sun3ZpvBmQfGUW.jpg" alt="The Fallout">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Uncharted" data-year="2022" data-genre="Acción, Aventura" data-duration="1h 55 mins" data-synopsis="Descubre la primera aventura de Nathan Drake, un joven, astuto y carismático cazatesoros, con su ingenioso compañero Victor “Sully” Sullivan. En una aventura de acción que se extiende por todo el mundo, ambos se embarcan en una peligrosa búsqueda de “el mayor tesoro nunca antes encontrado” al tiempo que rastrean las claves que les podrían conducir al hermano de Nathan, perdido hace ya mucho tiempo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2czYXM5NThyYmFndw==">
-    <img src="https://image.tmdb.org/t/p/original/rJHC1RUORuUhtfNb4Npclx0xnOf.jpg" alt="Uncharted">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Háblame" data-year="2023" data-genre="Terror" data-duration="1h 34 mins" data-synopsis="La solitaria adolescente Mia se engancha a la emoción de invocar espíritus utilizando una mano embalsamada, pero cuando se enfrenta a un alma que dice ser su madre muerta, desata una plaga de fuerzas sobrenaturales y se debate entre decidir en quién puede confiar: en los vivos o en los muertos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3o5Z2pweWVvdjZoYg==">
-    <img src="https://image.tmdb.org/t/p/original/kdPMUMJzyYAc4roD52qavX0nLIC.jpg" alt="Háblame">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Jackpot!" data-year="2024" data-genre="Comedia, Ciencia ficción, Acción" data-duration="1h 46 mins" data-synopsis="En un futuro próximo, se ha creado el sorteo de la Gran Lotería. El truco es matar al ganador antes del anochecer y reclamar legalmente el bote multimillonario. Cuando Katie Kim se hace con el boleto ganador por error, se une a regañadientes al agente novato de protección de la lotería Noel Cassidy, que deberá mantenerla con vida a cambio de una parte del premio." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2EycG5pNzllcWt4bA==">
-    <img src="https://image.tmdb.org/t/p/original/7vv0NTaQGOO7M5ZMerp1vMFJsby.jpg" alt="Jackpot!">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Juego de armas" data-year="2016" data-genre="Comedia, Crimen, Drama" data-duration="1h 54 mins" data-synopsis="Historia de dos jóvenes a los que el Pentágono pagó 300 millones de dólares para armar a los aliados americanos en Afganistán" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzR4eDF5dTVscWU2Yw==">
-    <img src="https://image.tmdb.org/t/p/original/mDcPRjZC1bb6LavFU3gwsWdVfCM.jpg" alt="Juego de armas">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Blade Runner 2049" data-year="2017" data-genre="Ciencia ficción, Drama" data-duration="2h 43 mins" data-synopsis="Han pasado 30 años desde los acontecimientos ocurridos en Blade Runner (1982). El oficial K, un blade runner caza-replicantes del Departamento de Policía de Los Ángeles, descubre un secreto que ha estado enterrado durante mucho tiempo y que tiene el potencial de llevar a la sociedad al caos. Su investigación le conducirá a la búsqueda del legendario Rick Deckard, un antiguo blade runner en paradero desconocido, que lleva desaparecido 30 años." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3l5ejdxZGlhOHljdA==">
-    <img src="https://image.tmdb.org/t/p/original/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg" alt="Blade Runner 2049">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Incoming" data-year="2024" data-genre="Comedia" data-duration="1h 31 mins" data-synopsis="Su primera semana de instituto y la mayor fiesta del año. Cuatro chicos se desmelenan en una noche loca donde no faltarán los equívocos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2ZiZXQ5aTBzaWlsZA==">
-    <img src="https://image.tmdb.org/t/p/original/k2ySukuAiAarLns0yttKS3jg85Y.jpg" alt="Incoming">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Beekeeper" data-year="2024" data-genre="Crimen, Acción, Aventura, Suspenso" data-duration="1h 45 mins" data-synopsis="La brutal campaña de venganza de Adam Clay adquiere tintes nacionales tras revelarse que es un antiguo agente de una poderosa organización clandestina conocida como *Beekeeper*." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3Y3ajVzdHd6bTMzOQ==">
-    <img src="https://image.tmdb.org/t/p/original/A7EByudX0eOzlkQ2FIbogzyazm2.jpg" alt="Beekeeper">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Mil veces hasta siempre" data-year="2024" data-genre="Drama, Romance" data-duration="1h 51 mins" data-synopsis="Una adolescente intenta resolver un misterio que rodea a un multimillonario fugitivo." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2NpbWRveDZva3hqdA==">
-    <img src="https://image.tmdb.org/t/p/original/tDKlFXWCvIkP2Xl2nMdI49kzwZx.jpg" alt="Mil veces hasta siempre">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Didi" data-year="2024" data-genre="Comedia, Drama" data-duration="1h 33 mins" data-synopsis="Un niño taiwanés-estadounidense de 13 años descubre el patinaje, el flirteo y la verdadera esencia del amor maternal más allá de las enseñanzas de su familia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3F3Z3VsNmxzb3NjOQ==">
-    <img src="https://image.tmdb.org/t/p/original/2EakDxV1m1TvTuhthGeROII4nQL.jpg" alt="Didi">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Ustedes" data-year="2023" data-genre="Romance, Comedia" data-duration="1h 58 mins" data-synopsis="Dos mileniales de Los Ángeles de orígenes dispares se enamoran y hacen frente a la prueba definitiva: conocer a sus respectivos padres. ¡El choque cultural está servido!" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2dxeGZuOWM3dzhncg==">
-    <img src="https://image.tmdb.org/t/p/original/x5E4TndwASNkaK2hwgeYfsIVo2x.jpg" alt="Ustedes">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Desconectada" data-year="2023" data-genre="Drama, Misterio, Suspenso" data-duration="1h 50 mins" data-synopsis="uando su madre desaparece estando de vacaciones en Colombia con su nuevo novio, la búsqueda de respuestas por parte de June se ve entorpecida por la burocracia internacional. Atascada en Los Ángeles, a miles de kilómetros de distancia, June utiliza toda la tecnología a su disposición para intentar encontrarla antes de que sea demasiado tarde. Pero cuanto más profundiza en su búsqueda, su investigación digital levanta más preguntas que respuestas… y cuando June revela secretos sobre su madre, se da cuenta de que nunca la conoció realmente. Secuela de 'Searching' (2018)." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3hzbGhndXpkNG1ydg==">
-    <img src="https://image.tmdb.org/t/p/original/qgZuXiDAkXdARlsDzQwmrCpkqpL.jpg" alt="Desconectada">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Bahía de invierno" data-year="2021" data-genre="Romance, Drama" data-duration="1h 31 mins" data-synopsis="Aunque viven en la misma ciudad, Elisabeth y John‑John habitan mundos distintos. ¿Podrá un apasionado primer amor derribar barreras sociales y culturales?" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzNzcGtnMmo3anpqNw==">
-    <img src="https://image.tmdb.org/t/p/original/g1OngP0vWRGrafk99vBgz6i4Xln.jpg" alt="Bahía de invierno">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Imaginario: Juguete Diabólico" data-year="2023" data-genre="Terror, Misterio, Suspenso" data-duration="1h 44 mins" data-synopsis="Cuando Jessica (DeWanda Wise) vuelve con su familia a la casa de su infancia, Alice (Pyper Braun), su hijastra más pequeña, comienza a desarrollar un extraño apego hacia Chauncey, el oso de peluche que encuentra en el sótano. En un primer momento, Alice y Chauncey se entretienen con juegos aparentemente divertidos que, poco a poco, irán volviéndose más siniestros y peligrosos. A medida que el comportamiento de Alice se va volviendo más inquietante, Jessica decide intervenir, pero cuando lo hace se da cuenta de que Chauncey es mucho más que un inofensivo oso de peluche." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzR6MHcxNGhpZmc3Nw==">
-    <img src="https://image.tmdb.org/t/p/original/9u6HEtZJdZDjPGGJq6YEuhPnoan.jpg" alt="Imaginario: Juguete Diabólico">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Romper el circulo" data-year="2024" data-genre="Romance, Drama" data-duration="2h 10 mins" data-synopsis="Una mujer atraviesa las tumultuosas etapas de una relación abusiva. Tras mudarse a la ciudad de Boston después de la universidad, decide iniciar su propio negocio como florista y se enamora de un joven neurocirujano." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2hlbzd1bnRwODJ0aA==">
-    <img src="https://image.tmdb.org/t/p/original/cSMdFWmajaX4oUMLx7HEDI84GkP.jpg" alt="Romper el circulo">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Las tres hijas" data-year="2024" data-genre="Drama, Comedia" data-duration="1h 45 mins" data-synopsis="Las emociones afloran cuando tres hermanas distanciadas se reúnen en un pequeño piso de Nueva York para cuidar de su padre enfermo en sus últimos días." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3E4NXA0eTlqaXRoYg==">
-    <img src="https://image.tmdb.org/t/p/original/yTIHBPLQyzhgz1c2spak3btJxsg.jpg" alt="Las tres hijas">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Tras las huellas del peligro" data-year="2023" data-genre="Suspenso" data-duration="1h 36 mins" data-synopsis="Cuatro amigos se embarcan en una aventura en el bosque, pero acaban tropezando con los restos de un avión utilizado para transportar drogas. Ellos son perseguidos por un grupo de contrabandistas y lo que debió ser un simple paseo, se transforma en una enorme pesadilla." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzJjaHVwb2JiOTIyYQ==">
-    <img src="https://image.tmdb.org/t/p/original/fjeOsh6R3tw4HFLxpnNt3PsfAar.jpg" alt="Tras las huellas del peligro">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="M3GAN" data-year="2022" data-genre="Ciencia ficción, Terror" data-duration="1h 41 mins" data-synopsis="Un ingeniero en robótica de una empresa de juguetes construye una muñeca realista que comienza a cobrar vida propia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3YxeGE5M2d1dnVvaw==">
-    <img src="https://image.tmdb.org/t/p/original/d9nBoowhjiiYc4FBNtQkPY7c11H.jpg" alt="M3GAN">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Entre la vida y la muerte" data-year="2022" data-genre="Romance, Ciencia ficción, Drama" data-duration="1h 57 mins" data-synopsis="Después de sobrevivir a un accidente automovilístico que le quitó la vida a su novio, una adolescente cree que él está intentando reconectarse con ella desde el más allá." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL210c2w1dXdtOTlyZQ==">
-    <img src="https://image.tmdb.org/t/p/original/7RcyjraM1cB1Uxy2W9ZWrab4KCw.jpg" alt="Entre la vida y la muerte">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Una noche loca" data-year="2013" data-genre="Comedia" data-duration="1h 33 mins" data-synopsis="Jeff Chang es un brillante estudiante que está a punto de cumplir 21 años. En la noche previa a una importante entrevista con una facultad de medicina donde Jeff quiere estudiar, dos amigos suyos lo llevan a tomar una cerveza, pero la noche no terminará como cabía esperar." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2hmeGI1b3F2amRsdQ==">
-    <img src="https://image.tmdb.org/t/p/original/noB71pnF8jz2IIP1LeilfnaaO2F.jpg" alt="Una noche loca">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Sector 36" data-year="2024" data-genre="Crimen, Suspenso, Drama" data-duration="2h 3 mins" data-synopsis="Cuando en el Sector 36 desaparecen varios niños a manos de un asesino en serie, un policía corrupto se ve obligado a resolver el estremecedor caso a cualquier precio." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL251djB5cHk2ZjFpMQ==">
-    <img src="https://image.tmdb.org/t/p/original/pbVcZmmcfqk35Q9hNxRoR7JPiVp.jpg" alt="Sector 36">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Nadie Especial" data-year="2021" data-genre="Comedia, Drama" data-duration="1h 35 mins" data-synopsis="Una joven encuentra un camino hacia el estrellato en Internet cuando comienza a hacer videos con un extraño carismático." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2oxZmF6MXVhczRlNQ==">
-    <img src="https://image.tmdb.org/t/p/original/tqLkjqk6Rz2VnGSsNzb1gUS18WA.jpg" alt="Nadie Especial">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="El abuelo y el Kid" data-year="2024" data-genre="Drama, Familia" data-duration="1h 37 mins" data-synopsis="Un estafador y su nieto adoptivo se dedican a timar a los ricos. Están muy unidos, pero de pronto surge una oportunidad que podría cambiarles la vida... y separarlos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2J2eWR5djk3eXdyYQ==">
-    <img src="https://image.tmdb.org/t/p/original/etE1CtyVneDf9kDTJvtWG0Iol90.jpg" alt="El abuelo y el Kid">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Matame si te atreves, cariño" data-year="2024" data-genre="Comedia, Romance" data-duration="1h 34 mins" data-synopsis="Un premio de lotería acarrea consecuencias fatales cuando los dos miembros del matrimonio ganador empiezan a maquinar para matar al otro y quedarse con todo el dinero." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzVjZWdyZ2k4b2plMw==">
-    <img src="https://image.tmdb.org/t/p/original/2veVEL9tIzL3JOLQmFAk0ZBGQ0r.jpg" alt="Matame si te atreves, cariño">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Suncoast" data-year="2024" data-genre="Drama, Comedia" data-duration="1h 49 mins" data-synopsis="Una adolescente que vive con su madre debe llevar a su hermano a vivir a un centro especializado. Allí, entabla una inesperada amistad con un activista excéntrico en medio de protestas en torno a casos médicos controvertidos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL240ZDhwbzB2Ym5jbw==">
-    <img src="https://image.tmdb.org/t/p/original/nmPLUp5lVMiGomkN3db1WPeNrz3.jpg" alt="Suncoast">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Bosco" data-year="2024" data-genre="Drama, Suspenso" data-duration="1h 44 mins" data-synopsis="Cuenta la historia de Quawntay “Bosco” Adams. Sentenciado a 35 años por intento de posesión de marihuana, Adams escapó milagrosamente con la ayuda de una mujer mayor que conoció a través de un anuncio de corazones solitarios." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2pldnloamM4NDRqbg==">
-    <img src="https://image.tmdb.org/t/p/original/dXjSeS3w97setnrNv4m6tlqqXzn.jpg" alt="Bosco">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Dos chicas a la fuga" data-year="2024" data-genre="Comedia, Crimen" data-duration="1h 24 mins" data-synopsis="Jamie está triste por la ruptura con su novia, mientras que Marian necesita relajarse. En busca de un nuevo comienzo, se embarcan en un inesperado viaje por carretera a Tallahassee. Las cosas se tuercen rápidamente cuando se cruzan con un grupo de criminales ineptos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2dsaHlyYmFjcXRjZQ==">
-    <img src="https://image.tmdb.org/t/p/original/gavGnAMTXPkpoFgG0stwgIgKb64.jpg" alt="Dos chicas a la fuga">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="60 Minutos" data-year="2024" data-genre="Acción" data-duration="1h 29 mins" data-synopsis="Desesperado por no perder la custodia de su hija, un luchador de artes marciales mixtas abandona una pelea y recorre Berlín a todo gas para verla el día de su cumpleaños." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2o3cXBiZ2x1OTI5bA==">
-    <img src="https://image.tmdb.org/t/p/original/cND79ZWPFINDtkA8uwmQo1gnPPE.jpg" alt="60 Minutos">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Música" data-year="2024" data-genre="Romance, Comedia, Música" data-duration="1h 31 mins" data-synopsis="Sigue a un joven muy apasionado por la música. Tiene que aceptar un futuro incierto mientras equilibra su vida amorosa, su familia y la cultura brasileña en Nueva Jersey." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL3Y5NGtuM3Zvd3l4MQ==">
-    <img src="https://image.tmdb.org/t/p/original/kUX5ourGUJDG0yvEeS3uooZS0dS.jpg" alt="Música">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Una boda y otros desastres" data-year="2024" data-genre="Romance, Comedia, Drama" data-duration="1h 34 mins" data-synopsis="Sigue a Abby y Travis, quienes después de una noche loca en Las Vegas, descubren que están casados. Luego se dirigen a México para una luna de miel con amigos y familiares." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2lyZ25pNm0wY241aA==">
-    <img src="https://image.tmdb.org/t/p/original/t3CAV8WALMtlYEHr1uvYhtrk2IR.jpg" alt="Una boda y otros desastres">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Un Detective Suelto En Hollywood" data-year="2024" data-genre="Acción, Comedia, Crimen" data-duration="1h 57 mins" data-synopsis="Cuatro décadas después de su inolvidable primer caso en Beverly Hills, el detective de Detroit Axel Foley vuelve a lo que mejor se le da: resolver crímenes y sembrar el caos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2M0aTBrMzhxeG5jag==">
-    <img src="https://image.tmdb.org/t/p/original/zszRKfzjM5jltiq8rk6rasKVpUv.jpg" alt="Un Detective Suelto En Hollywood">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Aguas Siniestras" data-year="2024" data-genre="Terror" data-duration="1h 38 mins" data-synopsis="Ray Waller, una estrella del béisbol obligada a retirarse prematuramente a causa de una enfermedad degenerativa, se muda a una nueva casa con su esposa Eve, su hija adolescente Izzy y su hijo pequeño Elliot. Con la esperanza secreta de recuperarse y volver al deporte profesional, Ray convence a Eve de que la fabulosa piscina del jardín de su nuevo hogar será divertida para los niños y le servirá a él como terapia física. Pero un oscuro secreto del pasado de la casa desatará una fuerza malévola que arrastrará a toda la familia a las insondables profundidades del terror más asfixiante." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lLzVianNiZG0zM3Nlcg==">
-    <img src="https://image.tmdb.org/t/p/original/9kSBjQ7KvMpCsdTYJ8BFiCNiMp4.jpg" alt="Aguas Siniestras">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Swallowed" data-year="2022" data-genre="Terror, Suspenso" data-duration="1h 35 mins" data-synopsis="Benjamin y Dom han sido mejores amigos desde que eran niños. En su última noche juntos, Dom planea despedir a Benjamin con mucho dinero en efectivo. Todo lo que tiene que hacer es entregar un paquete al otro lado de la frontera para un amigo..." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL21rdTkwaXg4YWp0aw==">
-    <img src="https://image.tmdb.org/t/p/original/lfTtTAjkE2rw91HRSdJsHnHYGmS.jpg" alt="Swallowed">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Prisioneros de Ghostland: Tierra sin ley" data-year="2021" data-genre="Acción, Fantasía, Terror" data-duration="1h 42 mins" data-synopsis="En la traicionera frontera de la ciudad de Samurai Town, un ladrón de bancos sin escrúpulos (Nicolas Cage) es liberado de la cárcel por un pudiente señor de la guerra conocido como The Governor (Bill Moseley) para que encuentre a Bernice (Sofia Boutella), su nieta adoptiva, que desaparecido sin dejar rastro. Para garantizar que cumpla su palabra, el ladrón es obligado a llevar puesto un traje de cuero que se autodestruirá en un periodo de cinco días. En su aventura buscará no sólo encontrar a la chica, sino también redimirse de sus pecados." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2V4bmF2aTNsamVncQ==">
-    <img src="https://image.tmdb.org/t/p/original/j5HRzcvN1QXZLvwfc3NLxX8XQJY.jpg" alt="Prisioneros de Ghostland: Tierra sin ley">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Asi en la Tierra como en el Infierno" data-year="2014" data-genre="Terror, Suspenso" data-duration="1h 33 mins" data-synopsis="Bajo los kilómetros y kilómetros de tortuosas catacumbas que hay bajo las calles de París, un grupo de exploradores se aventura entre los cientos de miles de huesos sin catalogar que ocupan el laberinto y acaban descubriendo cuál era la verdadera función de esta ciudad de los muertos. El recorrido se convierte en un viaje al corazón del terror. AS ABOVE, SO BELOW llega a lo más profundo de la mente humana, sacando a la luz los demonios que regresan para perseguirnos. (FILMAFFINITY)" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9wbGF5ZXJ3aXnoLmNvbS9lL2drbTh0Y25scDNvMQ==">
-    <img src="https://image.tmdb.org/t/p/original/whzyCC7f4VvZuZbFfYGUgp1DZVz.jpg" alt="Asi en la Tierra como en el Infierno">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Avenida Cloverfield 10" data-year="2016" data-genre="Suspenso, Ciencia ficción, Drama, Terror" data-duration="1h 43 mins" data-synopsis="Una joven sufre un accidente de coche. Cuando despierta se encuentra encerrada en una celda bajo tierra, secuestrada por un hombre extraño que dice haberla salvado del día del juicio final. El excéntrico captor asegura que el exterior es inhabitable por culpa de un terrible ataque químico, algo que no sabe si creer. Es así como comienza su pesadilla, en una espiral de desconocimiento. La mente del criminal es infranqueable, y ella tendrá que intentar analizar a su enemigo para conseguir sobrevivir." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lLzRhZXZ6c3R1MjMxMA==">
-    <img src="https://image.tmdb.org/t/p/original/q8A39vcBDruhvoDTJd6L8a4lnTi.jpg" alt="Avenida Cloverfield 10">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="La liberación" data-year="2024" data-genre="Terror, Suspenso" data-duration="1h 52 mins" data-synopsis="Ebony Jackson, una madre soltera, se muda con su familia para empezar desde cero, sin saber que en su nueva" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL283ZGVlcGxncHFmeQ==">
-    <img src="https://image.tmdb.org/t/p/original/8nvXNxLY6omubIBI1HpQG6mYCe4.jpg" alt="La liberación">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Aguanta la respiración" data-year="2024" data-genre="Terror, Suspenso, Drama" data-duration="1h 34 mins" data-synopsis="En la Oklahoma de los años 30, asediada por las terribles tormentas de arena que azotan la región, una mujer cree que una presencia siniestra amenaza a su familia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lLzV5bWpnaTdreTNsZQ==">
-    <img src="https://image.tmdb.org/t/p/original/cRTDtSjv2RMCokS6naed4RBsuQT.jpg" alt="Aguanta la respiración">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Beetlejuice" data-year="2024" data-genre="Comedia, Fantasía, Terror" data-duration="1h 44 mins" data-synopsis=" Tras una inesperada tragedia familiar, tres generaciones de la familia Deetz regresan a Winter River. La vida de Lydia, todavía atormentada por Bitelchús, da un vuelco cuando su rebelde hija adolescente, Astrid, descubre la misteriosa maqueta de la ciudad en el desván y el portal al Más Allá se abre accidentalmente. Con los problemas que se avecinan en ambos reinos, es sólo cuestión de tiempo que alguien diga el nombre de Bitelchús tres veces y el travieso demonio regrese para desatar su propio caos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL2xwYTg5dzg1OWN4NQ==">
-    <img src="https://image.tmdb.org/t/p/w1280/kWJw7dCWHcfMLr0irTHAPIKrJ4I.jpg" alt="Beetlejuice">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Inmaculada" data-year="2024" data-genre="Terror, Misterio, Suspenso" data-duration="1h 28 mins" data-synopsis="Cecilia (Sydney Sweeney), recién llegada de Estados Unidos, ingresa como novicia en un convento de la remota campiña italiana. Allí es recibida por el Padre Tedeschi (Álvaro Morte), quien la introduce en las rutinas religiosas. Un día descubre que está embarazada y lo que parecía un milagro, por conservar aún su virginidad, resulta ocultar un siniestro secreto que hará que busque salir de aquel lugar desesperadamente." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL3NvaTQ4d3Jpa2szMg==">
-    <img src="https://image.tmdb.org/t/p/w1280/fdZpvODTX5wwkD0ikZNaClE4AoW.jpg" alt="Inmaculada">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Pasajero Oculto" data-year="2020" data-genre="Terror, Acción, Bélica" data-duration="1h 23 mins" data-synopsis="La Capitana Maude Gardner, es una piloto de la Segunda Guerra Mundial capaz de cruzar los vuelos en un B-17, una auténtica fortaleza voladora de enorme tamaño. La Capitana Gardner es encomendada con llevar unos documentos totalmente secretos en un B-17, pero el viaje no será fácil cuando se tenga que enfrentar a una serie de presencias malignas que habitan en el avión." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL3F6OWxxZ2o4NjUyZw==">
-    <img src="https://image.tmdb.org/t/p/w1280/t7EUMSlfUN3jUSZUJOLURAzJzZs.jpg" alt="Pasajero Oculto">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Lo que hay dentro" data-year="2024" data-genre="Comedia, Misterio, Ciencia ficción" data-duration="1h 44 mins" data-synopsis="Una fiesta preboda acaba siendo una pesadilla psicológica para un grupo de amigos cuando un invitado inesperado aparece con una maleta misteriosa." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL2Z2a20waDc2eGVqNw==">
-    <img src="https://image.tmdb.org/t/p/w1280/2L1V2JAni8Uw7hVHIodTNOl5TZA.jpg" alt="Lo que hay dentro">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="CTRL" data-year="2024" data-genre="Suspenso, Drama" data-duration="1h 39 mins" data-synopsis="Los influencers Nella y Joe son la pareja perfecta. Pero, cuando él le es infiel, ella recurre a una aplicación de IA para borrarlo de su vida… hasta que pierde el control." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL2k0dHRhMnQzNzhjdQ==">
-    <img src="https://image.tmdb.org/t/p/w1280/eCaaJkJqRA6unsVe5hvtgJq301H.jpg" alt="CTRL">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Divorciados" data-year="2024" data-genre="Comedia, Drama" data-duration="1h 32 mins" data-synopsis="Dos ex cónyuges intentan validar la nulidad de su matrimonio más de 20 años después, pero la Iglesia no es tan fácil de convencer." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXnoLmNvbS9lL29xN3dzN25mY3Fzdg==">
-    <img src="https://image.tmdb.org/t/p/w1280/r0ZdpHIvojr6k9KMizU2e47bxDM.jpg" alt="Divorciados">
-    <p></p>
-</div>
-<div class="movie" data-category="Terror" data-title="Exorcism in Utero" data-year="2023" data-genre="Terror" data-duration="1h 35 mins" data-synopsis="Herma encuentra un anillo poderoso que la posee cuando se lo prueba; a medida que su cuerpo se transforma y su mente comienza a deteriorarse, debe encontrar una salida para salvarse a sí misma y a su bebé por nacer. " data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2EzZnh4anZtZzJkNw==">
-    <img src="https://image.tmdb.org/t/p/original/gUGCjYA3RwgU2HFD0kPuGQM06fW.jpg" alt="Exorcism in Utero">
-    <p></p>
-</div>
-<div class="movie" data-category="Terror" data-title="Salem's Lot" data-year="2024" data-genre="Terror, Misterio" data-duration="1h 53 mins" data-synopsis="El escritor Ben Mears regresa a Jerusalem's Lot, la casa de su infancia, en busca de inspiración para su próximo libro. Allí descubre que su ciudad natal está siendo presa de un vampiro sediento de sangre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzBxMWh0cHh2aGF1dQ==">
-    <img src="https://image.tmdb.org/t/p/original/j7ncdqBVufydVzVtxmXu8Ago4ox.jpg" alt="Salem's Lot">
-    <p></p>
-</div>
-<div class="movie" data-category="Terror" data-title="Miedo" data-year="2023" data-genre="Terror, Drama" data-duration="1h 38 mins" data-synopsis="Una escapada muy necesaria y un fin de semana de celebración se convierte en una pesadilla debido a la contagiosa amenaza aérea." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3p4ODlvbnNuZjMwMg==">
-    <img src="https://image.tmdb.org/t/p/original/asCLy4s7HYP3zSRlLP4Qgme5L0A.jpg" alt="Miedo?">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Jóvenes, locos y enamorados" data-year="2024" data-genre="Suspenso, Crimen, Acción" data-duration="1h 28 mins" data-synopsis="Nick, un talentoso fotógrafo recién llegado a Los Ángeles, se enamora rápidamente de Tessa, una joven de espíritu libre a quien la ciudad ya no le encanta. Sus mundos se ponen patas arriba cuando ella le pide que haga lo inimaginable, lo que lo lleva a descubrir una oscura verdad, lo que los obliga a seguir un camino de venganza y destrucción. " data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2RvNjMza2FrMmpkYg==">
-    <img src="https://image.tmdb.org/t/p/original/445lHS7TRbyoHcm80pArYny1e1l.jpg" alt="Jóvenes, locos y enamorados">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Atrapados en lo profundo" data-year="2024" data-genre="Suspenso, Terror, Acción" data-duration="1h 30 mins" data-synopsis="Esta película sigue a personajes de orígenes muy diferentes que se juntan cuando el avión en el que viajan se estrella en el Océano Pacífico. Cuando el avión se detiene peligrosamente cerca del borde de un barranco con los pasajeros y la tripulación atrapados en una bolsa de aire, se produce una lucha de pesadilla por la supervivencia en la que el suministro de aire se agota y los peligros se acercan por todos lados." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzJmY2d0N3MzZjZtMw==">
-    <img src="https://image.tmdb.org/t/p/original/hu40Uxp9WtpL34jv3zyWLb5zEVY.jpg" alt="Atrapados en lo profundo">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Abigail" data-year="2024" data-genre="Terror, Suspenso" data-duration="1h 49 mins" data-synopsis="A una banda de delincuentes se les ha encargado secuestrar a Abigail, una bailarina de doce años hija de una poderosa figura del inframundo. Su misión requiere también vigilarla durante la noche para poder cobrar un rescate de 50 millones de dólares. En una mansión aislada, los captores comienzan a desaparecer, uno por uno, y descubren, para su creciente horror, que la pequeña niña con la que están encerrados no es normal y está mostrando su verdadera naturaleza." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzdtaGJnanU2b2Nwcw==">
-    <img src="https://image.tmdb.org/t/p/original/5gKKSoD3iezjoL7YqZONjmyAiRA.jpg" alt="Abigail">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Atlas" data-year="2024" data-genre="Ciencia ficción, Acción" data-duration="2h" data-synopsis="Una brillante analista antiterrorista recela de la IA hasta que descubre que podría ser su única esperanza cuando se tuerce una misión para atrapar a un robot rebelde." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2k5bDlqcTRxYm5yMw==">
-    <img src="https://image.tmdb.org/t/p/w1280/bcM2Tl5HlsvPBnL8DKP9Ie6vU4r.jpg" alt="Atlas">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Monkey Man" data-year="2024" data-genre="Acción, Suspenso" data-duration="2h 1 mins" data-synopsis="Kid (Dev Patel) es un delincuente que acaba de salir de prisión y vive en la India, intentando adaptarse a un mundo marcado por la avaricia y carente de valores espirituales. Allí luchará por buscar venganza por la muerte de su madre y defender a las clases más desfavorecidas." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzdiMnVyZnhkNWFkcA==">
-    <img src="https://image.tmdb.org/t/p/w1280/4lhR4L2vzzjl68P1zJyCH755Oz4.jpg" alt="Monkey Man">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Detonantes" data-year="2024" data-genre="Acción" data-duration="1h 46 mins" data-synopsis="Una soldado de las fuerzas especiales descubre una peligrosa conspiración cuando regresa a casa en busca de respuestas sobre la muerte de su padre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzJhNXFyaGZvaGt6ZQ==">
-    <img src="https://image.tmdb.org/t/p/w1280/lJN24nn28s5afC1UnLPYRgYOp1K.jpg" alt="Detonantes">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="No hables con extraños" data-year="2024" data-genre="Terror, Suspenso" data-duration="1h 50 mins" data-synopsis="Cuando una familia estadounidense va invitada a pasar un fin de semana en la idílica finca campestre de una encantadora familia británica que conocieron en unas vacaciones, lo que comienza como una escapada de ensueño pronto se convierte en una retorcida pesadilla psicológica." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2NlOGFxcmYxbGprZw==">
-    <img src="https://image.tmdb.org/t/p/w1280/fDtkrO2OAF8LKQTdzYmu1Y7lCLB.jpg" alt="No hables con extraños">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Exorcismo" data-year="2024" data-genre="Terror, Suspenso" data-duration="1h 35 mins" data-synopsis="Anthony Miller (Russell Crowe) es un actor con problemas que empieza a desmoronarse durante el rodaje de una película de terror sobrenatural. Su distante hija (Ryan Simpkins) se pregunta si su padre está volviendo a sus adicciones del pasado o si hay algo más siniestro detrás..." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2o3eHM1anp4YXk2NQ==">
-    <img src="https://image.tmdb.org/t/p/w1280/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg" alt="Exorcismo">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="El Juego de la Muerte" data-year="2024" data-genre="Suspenso, Terror, Drama" data-duration="1h 33 mins" data-synopsis="La colegiala rebelde Dana llora la pérdida de su hermana menor, una niña que alguna vez fue feliz y que de repente se interpuso frente a un tren. Desesperada por saber qué sucedió, explora el historial en línea de su hermana y descubre un siniestro juego en las redes sociales. " data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3oxZDhmMzg3cGI3bA==">
-    <img src="https://image.tmdb.org/t/p/original/jKNCPbhAQtpZ6K9NiqBJbl2193I.jpg" alt="El Juego de la Muerte">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Hermanos" data-year="2024" data-genre="Acción, Comedia, Crimen" data-duration="1h 29 mins" data-synopsis="Dos hermanos gemelos criminales, uno buscando redención, se embarcan en un peligroso atraco por carretera. Enfrentando problemas legales, tiroteos y drama familiar, deben reconciliarse antes de que su misión los lleve a la autodestrucción." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3hvOHF3MXZzc3A5Mw==">
-    <img src="https://image.tmdb.org/t/p/original/nM1uXAoOxJdp7oEr9RUaVviNyzD.jpg" alt="Hermanos">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Descuida, yo te cuido" data-year="2021" data-genre="Comedia, Crimen, Suspenso, Drama" data-duration="1h 59 mins" data-synopsis="Marla Grayson (Rosamund Pike) no tiene escrúpulos a la hora de beneficiarse de los demás. Después de haberse aprovechado de docenas de jubilados como tutora legal, ella y su compañera Fran (Eiza González) ven a Jennifer Peterson (Dianne Wiest) como la nueva víctima: una gallina de los huevos de oro a la que pueden desplumar fácilmente. Pero mientras intentan llevar a cabo su plan, Marla y Fran descubren que la señora Peterson no es lo que creían, y que sus actos han entorpecido la labor de un importante criminal (Peter Dinklage)." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzBsZ2w5bHFmdHIxYg==">
-    <img src="https://image.tmdb.org/t/p/original/gKnhEsjNefpKnUdAkn7INzIFLSu.jpg" alt="Descuida, yo te cuido">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Diario de mi vagina" data-year="2024" data-genre="Comedia, Drama" data-duration="1h 45 mins" data-synopsis="Sigue a Lindy, una joven de 16 años cuyos planes de tener relaciones sexuales, sus presunciones sobre la feminidad y su relación con su madre se ven alteradas después de que inesperadamente le diagnostican una condición reproductiva." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2JrYWE5MmNnYmJ0bg==">
-    <img src="https://image.tmdb.org/t/p/original/en64gpXZiwbBewh0om3mOGWuPpz.jpg" alt="Diario de mi vagina">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Un espía y medio" data-year="2016" data-genre="Acción, Comedia, Crimen, Misterio" data-duration="1h 47 mins" data-synopsis="Un letal agente del la CIA (Johnson), víctima de acoso escolar en su adolescencia, vuelve a casa para asistir a una reunión de antiguos alumnos. Con la excusa de estar trabajando en un caso secreto, consigue la ayuda del chico popular en los años de Instituto (Hart), que ahora es un aburrido contable y vive añorando sus años de gloria. Para cuando el pobre oficinista se da cuenta del embrollo en el que se está metiendo, es demasiado tarde para desentenderse y su nuevo amigo, con maniobras cada vez más impredecibles, le arrastra a un mundo de tiroteos, traiciones y espionaje que les obligará a jugarse el cuello en incontables ocasiones." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL20xNDVnNTN4bTJ1bw==">
-    <img src="https://image.tmdb.org/t/p/w1280/7irCMBIivXAqjZ7MgZoGVLrgACR.jpg" alt="Un espía y medio">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Free Guy" data-year="2021" data-genre="Comedia, Aventura, Ciencia ficción" data-duration="1h 54 mins" data-synopsis="Guy trabaja como cajero de un banco, y es un tipo alegre y solitario al que nada la amarga el día. Incluso si le utilizan como rehén durante un atraco a su banco, él sigue sonriendo como si nada. Pero un día se da cuenta de que Free City no es exactamente la ciudad que él creía. Guy va a descubrir que en realidad es un personaje no jugable dentro de un brutal videojuego." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2szaWZyMTByZzlwbQ==">
-    <img src="https://image.tmdb.org/t/p/w1280/xmbU4JTUm8rsdtn7Y3Fcm30GpeT.jpg" alt="Free Guy">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="The Fall Guy" data-year="2024" data-genre="Acción, Comedia" data-duration="2h 6 mins" data-synopsis="Es un doble de acción, y al igual que todos en la comunidad de especialistas, sale volando, le disparan, se estrella, se tira desde ventanas y cae desde las alturas más extremas, todo para nuestro entretenimiento. Y ahora, tras un accidente que casi acaba con su carrera, este héroe de clase trabajadora debe seguir la pista de una estrella de cine desaparecida, resolver una conspiración y tratar de recuperar el amor de su vida mientras sigue haciendo su trabajo. ¿Qué podría salir bien?" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzVwMXRxdXhjdm5zcw==">
-    <img src="https://image.tmdb.org/t/p/w1280/tSz1qsmSJon0rqjHBxXZmrotuse.jpg" alt="The Fall Guy">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="La cueva azul" data-year="2024" data-genre="Drama" data-duration="1h 28 mins" data-synopsis="Cem, un soldado, encuentra a su media naranja cuando menos lo esperaba. Alara es una arqueóloga que se cruza en la vida del protagonista. Así, comenzará una apasionada historia de amor llena de contratiempos, aventuras y emotivas conversaciones." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3l5dWEzdDI2d2dnNQ==">
-    <img src="https://image.tmdb.org/t/p/original/yT7VYxdyAH7SCBnCwPBY2NqGDQr.jpg" alt="La cueva azul">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="No puedo vivir sin ti" data-year="2024" data-genre="Comedia, Romance" data-duration="1h 38 mins" data-synopsis="Carlos (Adrián Suar) es un consultor que lleva toda la vida enganchado al móvil del trabajo contestando emails, atendiendo llamadas y haciendo continuos video-meetings sin importarle el día y la hora que sea. Su nombramiento como socio está muy cerca y ahora más que nunca debe demostrar su total compromiso con la empresa. Sin embargo, para su mujer Adela (Paz Vega), la situación ha llegado a ser enfermiza, así que harta de ser siempre el segundo plato y aprovechando que sus hijos se han ido de erasmus, decide dejarle y comenzar una nueva vida. Ahora que Adela se ha ido de casa, Carlos hará todo lo posible para recuperarla, incluso apuntarse a una novedosa terapia que ha encontrado en internet. Una terapia para adictos a los móviles." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2x1Y2dua2s4ODdxbA==">
-    <img src="https://image.tmdb.org/t/p/original/ohtCcB46D3ki1FGoh1QvA1R14sk.jpg" alt="No puedo vivir sin ti">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Carnada" data-year="2024" data-genre="Suspenso, Terror" data-duration="1h 25 mins" data-synopsis="Sigue a un grupo de cinco novias que deben luchar por sus vidas en aguas abiertas después de que una boda de ensueño se transforme en una pesadilla." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2x4NGJnM2xtdHV2YQ==">
-    <img src="https://image.tmdb.org/t/p/original/1iWGGxHEwswZGvPSoMZlLFf0PNq.jpg" alt="Carnada">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Un asunto familiar" data-year="2024" data-genre="Romance, Comedia" data-duration="1h 53 mins" data-synopsis="¿Puede haber algo peor que trabajar como asistente para una caprichosa estrella del cine que no te toma en serio? Descubrir que está enamorado de tu madre." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzNjb2JsaDU2a2xjcw==">
-    <img src="https://image.tmdb.org/t/p/original/l0CaVyqnTsWwNd4hWsrLNEk1Wjd.jpg" alt="Un asunto familiar">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="Arthur" data-year="2024" data-genre="Aventura, Drama" data-duration="1h 47 mins" data-synopsis="Basada en una historia real. Michael White (Mark Wahlberg) es el capitán de un equipo que participa en una carrera de 700 km durante 10 días por las selvas de la República Dominicana. Durante esta épica carrera de resistencia, un perro callejero se les une, recorriendo con ellos algunos de los terrenos más difíciles del planeta. A medida que el equipo se ve empujado al límite de su resistencia en la carrera, Arthur redefine lo que realmente significan la victoria, la lealtad y la amistad." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3VtZjZ1d3pydHN2cg==">
-    <img src="https://image.tmdb.org/t/p/original/zkKB3kOun5DKAkm61pHvLbrjxfa.jpg" alt="Arthur">
-    <p></p>
-</div>
-<div class="movie" data-category="NO EDITAR" data-title="El salario del miedo" data-year="2024" data-genre="Acción" data-duration="1h 46 mins" data-synopsis="Para salvar a cientos de personas de la explosión de un pozo petrolífero, un equipo de expertos emprende una peligrosa travesía por el desierto con una carga de nitroglicerina." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzc4MTgzNG9keDd3Yg==">
-    <img src="https://image.tmdb.org/t/p/original/jFK2ZLQUzo9pea0jfMCHDfvWsx7.jpg" alt="El salario del miedo">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="Problemas..." data-year="2024" data-genre="Acción, Comedia, Crimen" data-duration="1h 38 mins" data-synopsis="Un torpe dependiente de electrónica, condenado por un asesinato que no cometió, se enfrenta a policías corruptos y conspiraciones criminales mientras intenta probar su inocencia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzBianJ6d3d6NmlnZg==">
-    <img src="https://image.tmdb.org/t/p/original/ildbg7ho14EHbt1fZWAkgqIyPqy.jpg" alt="Problemas...">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="Quédate despierto" data-year="2024" data-genre="Ciencia ficción, Terror, Suspenso" data-duration="1h 30 mins" data-synopsis="Después de que una prueba experimental de drogas sale terriblemente mal, los sujetos de prueba sobrevivientes tienen que luchar contra el sueño y entre ellos para mantenerse con vida." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzF1dnF6N2VnaTNyZA==">
-    <img src="https://image.tmdb.org/t/p/original/dGKQ4nPA5WDVbq2KdXkGpohEC7Y.jpg" alt="Quédate despierto">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="El asesino del juego de citas" data-year="2024" data-genre="Crimen, Drama, Suspenso" data-duration="1h 35 mins" data-synopsis="Las vidas de una aspirante a actriz y un prolífico asesino en serie se cruzan en los setenta cuando ambos entran al programa (El juego de las citas)." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzVtc3ZqYXFieDljMA==">
-    <img src="https://image.tmdb.org/t/p/original/nc9ZqrJFbcUdlMg9lxXXtJb24jU.jpg" alt="El asesino del juego de citas">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="Abrazo de madre" data-year="2024" data-genre="Terror, Drama" data-duration="1h 31 mins" data-synopsis="Durante una tormenta inclemente, un equipo de bomberos acude a un hogar de ancianos en ruinas. ¿Su misión? Evacuar el lugar… y lograr salir con vida." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2xyOGcwODMzbTdidw==">
-    <img src="https://image.tmdb.org/t/p/original/3bP7sHgrjkGmgJCUu6DscjGzNCw.jpg" alt="Abrazo de madre">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="El secuestro de 1993" data-year="2024" data-genre="Suspenso, Drama" data-duration="1h 26 mins" data-synopsis="Para poner fin al Gobierno respaldado por militares, cuatro hombres secuestran un avión y toman de rehenes a los pasajeros en nombre del cambio social." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2lyYThweHoyYXlsMA==">
-    <img src="https://image.tmdb.org/t/p/original/cmLD1G3r0Pj2zzylzlmwCGF4Qj4.jpg" alt="El secuestro de 1993">
-    <p></p>
-</div>
-<div class="movie" data-category="Película" data-title="Ahí afuera" data-year="2024" data-genre="Terror, Suspenso" data-duration="2h 22 mins" data-synopsis="Durante una epidemia zombi, una familia se refugia en una granja aislada, pero sus dolorosos secretos les pasan factura mientras lidian con un mundo devastado." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzE0dTIwczFnbnh4MQ==">
-    <img src="https://image.tmdb.org/t/p/original/33S6yUnEWueNVZABJeFPKUd7Rmz.jpg" alt="Ahí afuera">
-    <p></p>
-</div>
-<div class="movie" data-title="Antes de conocernos" data-year="2023" data-genre="Romance, Comedia, Drama" data-duration="1h 39 mins" data-synopsis="Basada en la novela más vendida, Antes De Conocernos es una conmovedora comedia romántica protagonizada por Lucy Hale y Nat Wolff. Jane, una periodista independiente, y Will, un fotógrafo, se sienten inmediatamente atraídos el uno por el otro en la boda de un amigo común. Después de que la pareja se escabulle para encerrarse en el guardarropa, todo parece indicar que se trata de un encuentro…" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3BvMXd3YTloZXk0Yg==">
-    <img src="https://image.tmdb.org/t/p/original/lQKG1313Lc85Bd42zWH16JP6oXQ.jpg" alt="Antes de conocernos">
-    <p></p>
-</div>
-<div class="movie" data-title="Siempre juntos" data-year="2024" data-genre="Comedia, Drama" data-duration="1h 41 mins" data-synopsis="Max Brandel es un guionista de televisión que arriesga su exitosa carrera y su matrimonio para intentar convertirse en un cómico de stand-up, pero no tiene éxito. Max tiene entonces que mudarse con su padre Stan, un talentoso pero excéntrico chef reconvertido en portero. Cuando Max tiene un gran desacuerdo con su exesposa y su nueva pareja sobre cómo lidiar con el asperger de su hijo Ezra, de 9 años, Max decide tomar una solución drástica: secuestrar a Ezra y llevarlo de viaje por todo el país." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzR5cnBoc21leXRiNg==">
-    <img src="https://image.tmdb.org/t/p/original/uXSajviZLZhYUSNL41y1PJ9RisB.jpg" alt="Siempre juntos">
-    <p></p>
-</div>
-<div class="movie" data-title="Si fueras el último" data-year="2024" data-genre="Ciencia ficción,Romance, Comedia" data-duration="1h 32 mins" data-synopsis="A la deriva en su averiado transbordador espacial con pocas esperanzas de ser rescatados, discuten si es mejor pasar los días que les quedan como amigos o algo más." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2VpMDhxbmc0YWJzMw==">
-    <img src="https://image.tmdb.org/t/p/original/bEyfMRY7frsy1v5yesdQEWjf1qz.jpg" alt="Si fueras el último">
-    <p></p>
-</div>
-<div class="movie" data-title="Ladrona de identidades" data-year="2013" data-genre="Comedia, Crimen" data-duration="2h" data-synopsis="Un hombre verá cómo su identidad es robada por una mujer que aparece en su vida. ¿Qué pretende con ello? ¿Cómo es posible que una mujer de esas características quiera hacerse pasar por un señor?" data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL3Fsc2I1Njk5bG1kcg==">
-    <img src="https://image.tmdb.org/t/p/original/hJgYQVhZtKgVNPBC5URoDasDZm9.jpg" alt="Ladrona de identidades">
-    <p></p>
-</div>
-<div class="movie" data-title="Pared con pared" data-year="2024" data-genre="Romance, Comedia" data-duration="1h 38 mins" data-synopsis="Una joven pianista se prepara para una audición tocando el piano a diario. Al otro lado de la pared de su piso vive un vecino que necesita silencio absoluto para desarrollar su trabajo como inventor de juegos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lLzV5OGNld3drYmk3cw==">
-    <img src="https://image.tmdb.org/t/p/original/vEV0cMrzRQIbZmgbXD4LL1gm9YP.jpg" alt="Pared con pared">
-    <p></p>
-</div>
-<div class="movie" data-title="Pixie" data-year="2020" data-genre="Comedia, Crimen, Suspenso" data-duration="1h 33 mins" data-synopsis="Para vengar la muerte de su madre, Pixie planea un atraco, pero debe huir a través de Irlanda de los gánsteres, enfrentarse al patriarcado y elegir su propio destino." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9obHN3aXNoLmNvbS9lL2ZkYjl2ZzhjNWl3Zg==">
-    <img src="https://image.tmdb.org/t/p/original/zvQpvZneVLM3dssUyqYvnQsHovk.jpg" alt="Pixie">
-    <p></p>
-</div>
-<div class="movie" data-title="Libre" data-year="2024" data-genre="Acción, Romance, Drama" data-duration="1h 33 mins" data-synopsis="Inspirado en los hechos reales de uno de los ladrones no violentos más notorios de Francia, Bruno Sulak, en la década de 1980. Lideró múltiples atracos, luego capturó la atención del público por sus muchas y audaces fugas de la custodia policial... siempre para reunirse con su amada amante y cómplice Annie, convirtiéndose en el enemigo público número uno de Francia y en un ícono de la libertad. " data-link="">
-    <img src="https://image.tmdb.org/t/p/original/b2YL2kncIqlcDcqly78AsOPJi6r.jpg" alt="Libre">
-    <p></p>
-</div>
-<div class="movie" data-title="La noche de los desaparecidos" data-year="2024" data-genre="Terror" data-duration="1h 13 mins" data-synopsis="El sheriff de una pequeña ciudad es un asesino en serie. Una misteriosa mujer le visita e inicia una conversación sobre los crímenes que cometió." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS9saTgxdDNweThsYXI=">
-    <img src="https://image.tmdb.org/t/p/original/sXAZqbk92lPtuH8wNSVx04Kiqh3.jpg" alt="La noche de los desaparecidos">
-    <p></p>
-</div>
-<div class="movie" data-title="Las mejores semanas de mi vida" data-year="2023" data-genre="Comedia" data-duration="1h 30 mins" data-synopsis="La historia de un estudiante de último curso de instituto socialmente invisible que comete un desliz y consigue que suspendan al mayor matón del instituto, y se da cuenta de que puede que sólo le queden dos semanas para experimentar todo lo que se ha perdido." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS8xczZ0N2o4OWR1NXo=">
-    <img src="https://image.tmdb.org/t/p/original/rqHFVUYXOwpNyHWJddW4HWJa4GY.jpg" alt="Las mejores semanas de mi vida">
-    <p></p>
-</div>
-<div class="movie" data-title="Cuckoo" data-year="2024" data-genre="Terror, Misterio, Ciencia ficción" data-duration="1h 43 mins" data-synopsis="Gretchen viaja con su padre y su madrastra a los Alpes alemanes. Se encuentra con misteriosos secretos en la localidad donde se hospedan. Escucha sonidos extraños y tiene visiones aterradoras de una mujer que la persigue. Gretchen se ve involucrada en una conspiración que involucra experimentos extraños del dueño del balneario que se remontan a generaciones." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS9kdWtoZ2phbzYxbWM=">
-    <img src="https://image.tmdb.org/t/p/original/4bGP5cnSZbfBJfIidZNSEIKnav7.jpg" alt="Cuckoo">
-    <p></p>
-</div>
-<div class="movie" data-title="Thelma: Una abuela en acción" data-year="2024" data-genre="Acción, Comedia, Aventura" data-duration="1h 38 mins" data-synopsis="Cuando a Thelma Post, de 93 años, le engaña un estafador telefónico que se hace pasar por su nieto, emprende una peligrosa búsqueda por toda la ciudad para recuperar lo que le han quitado." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS81czlneHZqdHZuNXY=">
-    <img src="https://image.tmdb.org/t/p/original/rUcuageYgv9SsJoWuc0seRWG6JC.jpg" alt="Thelma: Una abuela en acción">
-    <p></p>
-</div>
-<div class="movie" data-title="Aprender a soltar" data-year="2024" data-genre="Drama" data-duration="1h 50 mins" data-synopsis="Descubrir lo que de verdad importa. En el centro está Stella. Lo tiene todo bajo control... excepto la constante necesidad de atención de su hijo en edad preescolar, los cambios de humor adolescentes de su hija y su marido, emocionalmente inaccesible. La familia está a punto de romperse cuando Stella recibe un mensaje que lo cambia todo. Decide hacer un viaje con su familia en el que tendrá que conseguir lo imposible para volver a unirla." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS95ZWF5d3E2anc0dGo=">
-    <img src="https://image.tmdb.org/t/p/original/hIJRqqAaMUtQ13mZL6lCE6myhXH.jpg" alt="Aprender a soltar">
-    <p></p>
-</div>
-<div class="movie" data-title="Amor platónico" data-year="2024" data-genre="Comedia, Romance" data-duration="1h 32 mins" data-synopsis="Noah es un joven de 17 años que visita a Luna para ayudarle con el examen de filosofía que tiene al día siguiente. Luna es una chica que todo lo cuestiona y que prefiere pasar la noche pensando en su novio que estudiando. La dialéctica de Platón se va cruzando con sus vivencias en una noche donde acabarán abandonando la caverna para descubrir el verdadero significado del Amor Platónico." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzI2Yjk5aXcyejBybw==">
-    <img src="https://image.tmdb.org/t/p/original/iU3ZrNP8hsX8ecfqlNIGKzWAv8q.jpg" alt="Amor platónico">
-    <p></p>
-</div>
-<div class="movie" data-title="Amber Alert" data-year="2024" data-genre="Suspenso, Drama" data-duration="1h 30 mins" data-synopsis="Erin parece tener la familia perfecta. Sin embargo, es víctima de violencia doméstica a manos de su esposo. Cuando finalmente va demasiado lejos, Erin se lleva a sus hijos y huye a California. Darren parte en su persecución, decidido a traerlos de vuelta." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2d3Ym85OTJpeWlxMQ==">
-    <img src="https://image.tmdb.org/t/p/original/vkrmJ2fStfnvsLfBw55nimnjcd5.jpg" alt="Amber Alert">
-    <p></p>
-</div>
-<div class="movie" data-title="La sustancia" data-year="2024" data-genre="Drama, Terror, Ciencia ficción" data-duration="2h 21 mins" data-synopsis="(Tú), pero mejor en todos los sentidos). Esa es la promesa de la sustancia, un producto revolucionario basado en la división celular, que crea un alter ego más joven, más bello, más perfecto." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL3FtY21lMW44cWtncQ==">
-    <img src="https://image.tmdb.org/t/p/original/lqoMzCcZYEFK729d6qzt349fB4o.jpg" alt="La sustancia">
-    <p></p>
-</div>
-<div class="movie" data-title="Linda" data-year="2024" data-genre="Drama, Suspenso" data-duration="1h 39 mins" data-synopsis="Una joven cautivadora acepta trabajar como empleada doméstica en una casa acomodada. Con su encanto único, despierta la atracción en cada miembro de la familia, pero pronto descubre que detrás de sus vidas aparentemente felices se esconde una complejidad inesperada." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzczMWtkMGFmNWVwYw==">
-    <img src="https://image.tmdb.org/t/p/original/lv6UUrTia3zv1iayirbDkYxScx8.jpg" alt="Linda">
-    <p></p>
-</div>
-<div class="movie" data-title="Subservience" data-year="2024" data-genre="Ciencia ficción, Suspenso, Terror" data-duration="1h 45 mins" data-synopsis="Un padre en apuros compra una SIM doméstica para que le ayude a cuidar de su casa y su familia. Esta empezará a cobrar conciencia y se volverá letal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzA2N3NoYzh2bHpvbQ==">
-    <img src="https://image.tmdb.org/t/p/original/gBenxR01Uy0Ev9RTIw6dVBPoyQU.jpg" alt="Subservience">
-    <p></p>
-</div>
-<div class="movie" data-title="Septiembre" data-year="2023" data-genre="Drama, Romance" data-duration="1h 23 mins" data-synopsis="Alma y Alex fueron novios en su juventud y, fortuitamente, se encuentran después de 20 años, aunque no se reconocen, sí se recuerdan. Los sueños de Alex fueron devorados por el conformismo después de quedarse en el pueblo mientras que Alma, embarazada, regresa al pueblo para cerrar la venta de la casa de sus padres. Sin embargo, lo que realmente está haciendo es huir de una relación tóxica con el padre de su hijo. Todo ocurre en un fin de semana en el ambos se reencuentran, justo antes de comenzar el curso en el noveno mes del año." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2s0aXE0bjk2Nml5ZQ==">
-    <img src="https://image.tmdb.org/t/p/original/mUGRiJj09iyt3ImCi1pMvh2BFRx.jpg" alt="Septiembre">
-    <p></p>
-</div>
-<div class="movie" data-title="Operación Esperanza: Los niños perdidos en el Amazonas" data-year="2024" data-genre="Documental" data-duration="1h 26 mins" data-synopsis="Narra lo acontecido el 1 de mayo de 2023, cuando cuatro niños estaban a bordo de un pequeño avión que se estrelló en lo profundo del Amazonas. Los niños no solo sobrevivieron al accidente, sino que pasaron 40 días solos en la selva hasta que finalmente fueron rescatados el 9 de junio." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzJ0MjZjYXluM3Zhcg==">
-    <img src="https://image.tmdb.org/t/p/original/uBOS7RbRFmEkXQ98drgL9H4jjXc.jpg" alt="Operación Esperanza: Los niños perdidos en el Amazonas">
-    <p></p>
-</div>
-<div class="movie" data-title="Los niños perdidos" data-year="2024" data-genre="Documental" data-duration="1h 36 mins" data-synopsis="Tras un accidente de avión, cuatro niños indígenas usan la sabiduría de sus antepasados para sobrevivir en la Amazonia colombiana mientras comienza una misión de rescate." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2lxYjhkMmt6cDhvdQ==">
-    <img src="https://image.tmdb.org/t/p/original/zZFgu08NbAdf1GdyIcewwcpBznU.jpg" alt="Los niños perdidos">
-    <p></p>
-    </div>
-        <div class="movie" data-title="El límite del placer" data-year="2023" data-genre="Suspenso" data-duration="1h 30 mins" data-synopsis="Cuando el solitario Franklin engaña a su pareja con una chica misteriosa que conoce en una aplicación de citas, se convierte en el comienzo de una obsesión mortal." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2VwbGRyZzZuZzM4bg==">
-    <img src="https://image.tmdb.org/t/p/original/3BjLdTWRiHc1ISIZMFvToOmghOM.jpg" alt="El límite del placer">
-    <p></p>
-</div>
-<div class="movie" data-title="Querido Santa" data-year="2024" data-genre="Comedia, Fantasía, Terror" data-duration="1h 47 mins" data-synopsis="Narra la historia de un niño que, al escribir su carta anual a Santa, confunde las letras y se la envía directo a Satán." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL3hrMjBrYXBhejBueQ==">
-    <img src="https://image.tmdb.org/t/p/original/fRbDHbGBXg6kwQYr3CRYeKPJW5q.jpg" alt="Querido Santa">
-    <p></p>
-</div>
-<div class="movie" data-title="Nuestro Secretito" data-year="2024" data-genre="Romance, Comedia Drama" data-duration="1h 41 mins" data-synopsis="Dos ex resentidos se ven obligados a pasar la Navidad bajo el mismo techo tras descubrir que sus parejas actuales son hermanos." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2MzcDE2a3J2djVkcQ==">
-    <img src="https://image.tmdb.org/t/p/original/7isqmWUryG2xksrw0E75m3vYTFd.jpg" alt="Nuestro Secretito">
-    <p></p>
-</div>
-<div class="movie" data-title="La otra cara de la luna" data-year="2024" data-genre="Romance, Comedia" data-duration="2h 11 mins" data-synopsis="Las chispas vuelan en todas direcciones cuando la experta en marketing Kelly Jones, contratada para arreglar la imagen pública de la NASA, causa estragos en la ya difícil tarea del director de lanzamiento del Apolo 11, Cole Davis, de llevar un hombre a la luna. Cuando la Casa Blanca considera que la misión es demasiado importante para fallar, se le ordena a Jones que organice un alunizaje falso como respaldo, y la cuenta regresiva realmente comienza." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzQwNHZ6Yzc1a3AyYQ==">
-    <img src="https://image.tmdb.org/t/p/original/lb0XDH6LbkYwzbHTqjsUNZTLXMS.jpg" alt="La otra cara de la luna">
-    <p></p>
-</div>
-        <div class="movie" data-title="La otra Zoey" data-year="2023" data-genre="Romance, Drama, Comedia" data-duration="1h 31 mins" data-synopsis="Zoey Miller, una empollona informática superinteligente a la que no le interesa el amor romántico, ve cómo su vida da un vuelco cuando Zack, la estrella de fútbol del instituto, sufre amnesia y confunde a Zoey con su novia." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzd3bDZoMWozM2w3MQ==">
-    <img src="https://image.tmdb.org/t/p/original/rh9fwqA98ufdx9vP7V6lLhfpfk1.jpg" alt="La otra Zoey">
-    <p></p>
-</div>
-<div class="movie" data-title="Nosotros" data-year="2019" data-genre="Terror, Suspenso" data-duration="1h 56 mins" data-synopsis="Adelaide Wilson es una mujer que vuelve al hogar de su infancia en la costa junto a su marido, Gabe, y sus dos hijos, para una idílica escapada veraniega. Después de un tenso día en la playa con sus amigos, Adelaide y su familia vuelven a la casa donde están pasando las vacaciones. Cuando cae la noche, los Wilson descubren la silueta de cuatro figuras cogidas de la mano y en pie delante de la vivienda. "Nosotros" enfrenta a una entrañable familia estadounidense a un enemigo tan insólito como aterrador." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL3JjbnNuaTA4eWZzNA==">
-    <img src="https://image.tmdb.org/t/p/original/ux2dU1jQ2ACIMShzB3yP93Udpzc.jpg" alt="Nosotros">
-    <p></p>
-</div>
-<div class="movie" data-title="Apocalipsis Z" data-year="2024" data-genre="Drama, Acción, Terror" data-duration="1h 58 mins" data-synopsis="Cuando una especie de rabia que transforma a la gente en criaturas agresivas se extiende por el planeta, Manel se aísla en casa con su gato, recurriendo a su ingenio para sobrevivir; pero pronto deberán salir a buscar comida, por tierra y por mar, sorteando muchos peligros." data-link="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL250aHNnYm8xNGxscg==">
-    <img src="https://image.tmdb.org/t/p/original/hSmOrZl8ON2aJk6xvjNgVQiPdCP.jpg" alt="Apocalipsis Z">
-    <p></p>
 </div>
 
+<!-- AQUI VAN TODOS LOS MODALES DE CADA SAGA -->
 
-
-        
-        
-        
-        <!-- Más películas aquí -->
-    </div>
-
-    <!-- Modal para mostrar detalles de las películas -->
-<div id="movieModal" class="modal">
-    <div class="modal-content">
-        <span class="close">×</span>
-        <img id="modalPoster" src="" alt="Poster">
-        <div class="info">
-            <h2 id="modalTitle"></h2>
-            <p><i class="fas fa-calendar"></i> <span id="modalYear"></span></p>
-            <p><i class="fas fa-film"></i> <span id="modalGenre"></span></p>
-            <p><i class="fas fa-clock"></i> <span id="modalDuration"></span></p>
-            <p><i class="fas fa-book"></i> <span id="modalSynopsis"></span></p>
-            <a id="modalLink" href="https://example.com" target="_self" class="link">
-    <button style="background-color: #FF0000; color: white; padding: 10px 100px; border: 2px solid #FF4C4C; border-radius: 8px; cursor: pointer; transition: all 0.3s ease-in-out; box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden;">
-        VER PELÍCULA
-    </button>
-            </a>
+<!-- Modal de la SAGA Son como niños -->
+<div id="modalSonComoNinosSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalSonComoNinosSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieSonComoNinos2010')">
+                <img src="https://image.tmdb.org/t/p/original/cQGM5k1NtU85n4TUlrOrwijSCcm.jpg" alt="Son como niños">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieSonComoNinos22013')">
+                <img src="https://image.tmdb.org/t/p/original/hT6ijOtjtYrnyDhN7VA2QWyGFAm.jpg" alt="Son como niños 2">
+                <h3></h3>
+            </div>
         </div>
     </div>
-</div>            
+</div>
 
-    <script>
-        // Función para abrir el modal y mostrar los detalles de la película
-        function openModal(movie) {
-            const modal = document.getElementById('movieModal');
-            const title = movie.getAttribute('data-title');
-            const year = movie.getAttribute('data-year');
-            const genre = movie.getAttribute('data-genre');
-            const duration = movie.getAttribute('data-duration');
-            const synopsis = movie.getAttribute('data-synopsis');
-            const link = movie.getAttribute('data-link');
-            const posterSrc = movie.querySelector('img').src;
+<!-- Modal de la SAGA IT (Eso) -->
+<div id="modalItSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalItSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieIt2017')">
+                <img src="https://image.tmdb.org/t/p/original/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg" alt="IT (Eso)">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieIt22019')">
+                <img src="https://image.tmdb.org/t/p/original/zfE0R94v1E8cuKAerbskfD3VfUt.jpg" alt="IT: Capítulo 2">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-            document.getElementById('modalPoster').src = posterSrc;
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalYear').textContent = 'Año: ' + year;
-            document.getElementById('modalGenre').textContent = 'Género: ' + genre;
-            document.getElementById('modalDuration').textContent = 'Duración: ' + duration;
-            document.getElementById('modalSynopsis').textContent = synopsis;
-            document.getElementById('modalLink').href = link;
+    <!-- Modal de la SAGA Misión de Rescate -->
+<div id="modalMisionRescateSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalMisionRescateSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieMisionRescate1')">
+                <img src="https://image.tmdb.org/t/p/original/tChL0WfXuSSg5EhuWySPil8wFz9.jpg" alt="Misión de Rescate">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieMisionRescate2')">
+                <img src="https://image.tmdb.org/t/p/original/7gKI9hpEMcZUQpNgKrkDzJpbnNS.jpg" alt="Misión de Rescate 2">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-            modal.style.display = 'block';
-        }
+<!-- Modal de la SAGA Transformers -->
+<div id="modalTransformersSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalTransformersSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieTransformers2007')">
+                <img src="https://image.tmdb.org/t/p/original/r7JUUtsvJldj6wrJXtAUB9rXZlo.jpg" alt="Transformers">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieRevenge2009')">
+                <img src="https://image.tmdb.org/t/p/original/6jcxahM7BDAAeKkP4IF8WLFsJ3K.jpg" alt="Transformers: La venganza de los caídos">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieDarkMoon2011')">
+                <img src="https://image.tmdb.org/t/p/original/juIr4ro90IBK7XlUpwo0cYqdnCI.jpg" alt="Transformers: El lado oscuro de la luna">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieAgeExtinction2014')">
+                <img src="https://image.tmdb.org/t/p/original/7JV3srXxr4fOY58vvGeBRTSGOuF.jpg" alt="Transformers: La era de la extinción">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieLastKnight2017')">
+                <img src="https://image.tmdb.org/t/p/original/pLaHXumbd79wpVD9yGFyD3AmjhS.jpg" alt="Transformers: El último caballero">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Función para cerrar el modal
-        function closeModal() {
-            document.getElementById('movieModal').style.display = 'none';
-        }
+<!-- Modal de la SAGA El Origen del Planeta de los Simios -->
+<div id="modalOrigenPlanetaSimiosSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalOrigenPlanetaSimiosSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieRiseOfThePlanetOfTheApes2011')">
+                <img src="https://image.tmdb.org/t/p/original/oscN6Hm4OMKIy6ITFot3ZuwMQa2.jpg" alt="El Origen del Planeta de los Simios">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieDawnOfThePlanetOfTheApes2014')">
+                <img src="https://image.tmdb.org/t/p/original/nIcZlG4DuAinlEkUzSIEmXy3F5v.jpg" alt="El Amanecer del Planeta de los Simios">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieWarForThePlanetOfTheApes2017')">
+                <img src="https://image.tmdb.org/t/p/original/mMA1qhBFgZX8O36qPPTC016kQl1.jpg" alt="La Guerra del Planeta de los Simios">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieTheKingdomOfThePlanetOfTheApes2024')">
+                <img src="https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg" alt="El Reino del Planeta de los Simios">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const movies = document.querySelectorAll('.movie');
-            const modalClose = document.querySelector('.close');
+<!-- Modal de la SAGA Joker -->
+<div id="modalJokerSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalJokerSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieJoker2019')">
+                <img src="https://image.tmdb.org/t/p/original/mZuAPY4ETMQPHhCXIcJ90kd6RaS.jpg" alt="Joker">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieJokerFolieADeux2024')">
+                <img src="https://image.tmdb.org/t/p/original/if8QiqCI7WAGImKcJCfzp6VTyKA.jpg" alt="Joker: Folie à Deux">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Agregar el evento de clic a cada película
-            movies.forEach(movie => {
-                movie.addEventListener('click', function () {
-                    openModal(this);
-                });
-            });
+<div id="modalSmileSaga" class="modal">
+    <div class="modal-content-saga">
+        <span class="close" onclick="closeModal('modalSmileSaga')">&times;</span>
+        <div class="grid">
+            <div class="movie" onclick="openMovieModal('movieSmile2022')">
+                <img src="https://image.tmdb.org/t/p/original/aPqcQwu4VGEewPhagWNncDbJ9Xp.jpg" alt="Smile">
+                <h3></h3>
+            </div>
+            <div class="movie" onclick="openMovieModal('movieSmile2Upcoming')">
+                <img src="https://image.tmdb.org/t/p/original/ht8Uv9QPv9y7K0RvUyJIaXOZTfd.jpg" alt="Smile 2">
+                <h3></h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Cerrar el modal al hacer clic en la "x"
-            modalClose.addEventListener('click', closeModal);
+<!-- AQUI VAN LOS MODALES DE LAS SAGAS -->
 
-            // Cerrar el modal al hacer clic fuera del contenido
-            window.addEventListener('click', function (event) {
-                const modal = document.getElementById('movieModal');
-                if (event.target === modal) {
-                    closeModal();
-                }
-            });
-        });
-    </script>
+<!-- AQUI ESTA LA SAGA DE "SON COMO NIÑOS" -->
+
+<!-- SON COMO NIÑOS -->    
+
+<!-- Modal de Son como niños -->
+<div id="movieSonComoNinos2010" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieSonComoNinos2010')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/cQGM5k1NtU85n4TUlrOrwijSCcm.jpg" alt="Son como niños">
+        <h3>SON COMO NIÑOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2010</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Comedia</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 1h 42 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Después de muchos años, su antiguo entrenador de basquet muere y cincos amigos deciden pasar un fin de semanas -ahora con sus respectivas familias- en la casa donde celebraron, antaño, el campeonato.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS8zdmJwdzNjaTF5NW8=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- SON COMO NIÑOS 2 -->
+
+<!-- Modal de Son como niños 2 -->
+<div id="movieSonComoNinos22013" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieSonComoNinos22013')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/hT6ijOtjtYrnyDhN7VA2QWyGFAm.jpg" alt="Son como niños 2">
+        <h3>SON COMO NIÑOS 2</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2013</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Comedia</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 1h 41 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Lenny se ha trasladado con su familia a la pequeña ciudad donde tanto él como sus amigos se criaron. En esta ocasión, los adultos serán quienes reciban toda una lección de sus propios hijos.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS80a2NmdHJlaDBlamg=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "IT" -->
+
+<!-- IT -->
+
+<!-- Modal de IT -->
+<div id="movieIt2017" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieIt2017')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg" alt="IT">
+        <h3>IT</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2017</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Terror</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 14 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Remake del clásico de Stephen King en el que un payaso aterroriza a los niños de un vecindario. En un pequeño pueblo de Maine, siete niños conocidos como el Club de los Perdedores se encuentran cara a cara con problemas de la vida, matones y un monstruo que toma la forma de un payaso llamado Pennywise.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS84YXpldHo0YnJiajY=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>   
+
+<!-- IT: CHAPTER 2 -->
+
+<!-- Modal de IT: Chapter 2 -->
+<div id="movieIt22019" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieIt22019')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/zfE0R94v1E8cuKAerbskfD3VfUt.jpg" alt="IT: Capítulo 2">
+        <h3>IT: CHAPTER 2</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2019</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Terror, Drama, Fantasía</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 49 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Han pasado casi 30 años desde que el "Club de los Perdedores", formado por Bill, Beverly, Richie, Ben, Eddie, Mike y Stanley, se enfrentaran al macabro y despiadado Pennywise (Bill Skarsgård). En cuanto tuvieron oportunidad, abandonaron el pueblo de Derry, en el estado de Maine, que tantos problemas les había ocasionado. Sin embargo, ahora, siendo adultos, parece que no pueden escapar de su pasado. Todos deberán enfrentarse de nuevo al temible payaso para descubrir si de verdad están preparados para superar sus traumas de la infancia.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS9rMGw3cTV1a2JjajE=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "TRANSFORMERS" -->
+
+<!-- TRANSFORMERS -->
+
+<!-- Modal de Transformers -->
+<div id="movieTransformers2007" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieTransformers2007')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/r7JUUtsvJldj6wrJXtAUB9rXZlo.jpg" alt="Transformers">
+        <h3>TRANSFORMERS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2007</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Aventura, Ciencia ficción, Acción</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 23 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Dos razas de robots extraterrestres transformables (los villanos *decepticons* y los amistosos *autobots*) llegan a la Tierra en busca de una misteriosa fuente de poder. En la guerra que estalla entre las dos razas, los hombres toman partido por los *autobots*. Sam Witwicky (Shia LaBeouf), un adolescente avispado, que sólo desea conquistar a la bella Mikaela (Megan Fox), se convierte en la clave de una guerra que puede destruir a la humanidad. </p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS9jZnR1M2psbnkwZzE=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- TRANSFORMERS: LA VENGANZA DE LOS CAÍDOS -->
+
+<!-- Modal de Transformers: La venganza de-->
+<div id="movieRevenge2009" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieRevenge2009')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/6jcxahM7BDAAeKkP4IF8WLFsJ3K.jpg" alt="Transformers: La venganza de los caídos">
+        <h3>TRANSFORMERS: LA VENGANZA DE LOS CAÍDOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2009</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Ciencia ficción, Acción, Aventura</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 30 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Dos años después de derrotar a los Decepticons, las vidas de Sam y los Autobots han cambiado mucho. Mientras Sam se prepara para ir a la universidad, sus amigos robots se han integrado en una fuerza de élite que captura a enemigos renegados. Pero todo cambia con la llegada de un malvado enemigo que, con un enrevesado plan, planea un nuevo alzamiento de los Decepticons. La humanidad vuelve a estar en peligro, y Sam y los Autobots tendrán que formar una vez más equipo para salvarla.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS84MTM4NWVkbmxqcmw=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- TRANSFORMERS: EL LADO OSCURO DE LA LUNA -->
+
+<!-- Modal de Transformers: El lado oscuro de la luna-->
+<div id="movieDarkMoon2011" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieDarkMoon2011')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/juIr4ro90IBK7XlUpwo0cYqdnCI.jpg" alt="Transformers: El lado oscuro de la luna">
+        <h3>TRANSFORMERS: EL LADO OSCURO DE LA LUNA</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2011</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Acción, Ciencia ficción, Aventura</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 34 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> En esta tercera entrega de la saga Transformers, los Autobots y los Decepticons se ven envueltos en una peligrosa carrera espacial en la Tierra entre los EE.UU. y Rusia, donde un acontecimiento amenaza con provocar una guerra tan grande que ni los propios transformers puede que sean capaces de salvar nuestro planeta. Y una vez más, como casi siempre, Sam Witwicky se encuentra involuntariamente en medio del conflicto.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS93ZG16d2VmMm5vN3I=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- TRANSFORMERS: LA ERA DE LA EXTINCIÓN -->
+
+<!-- Modal de Transformers: La era de la extinción-->
+<div id="movieAgeExtinction2014" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieAgeExtinction2014')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/7JV3srXxr4fOY58vvGeBRTSGOuF.jpg" alt="Transformers: Age of Extinction (2014)">
+        <h3>TRANSFORMERS: LA ERA DE LA EXTINCIÓN</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2014</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Ciencia ficción, Acción, Aventura</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 45 minins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Han pasado 4 años desde la tragedia de Chicago y la humanidad sigue reparando los destrozos, pero tanto los Autobots como los Decepticons han desaparecido de la faz de la Tierra. Ahora el Gobierno de los Estados Unidos está utilizando la tecnología rescatada en el asedio de Chicago para desarrollar sus propios Transformers. Al frente del proyecto está Joshua Joyce, un arrogante diseñador que piensa que los Autobots son *basura tecnológica* y se cree capaz de fabricar unos robots infinitamente más avanzados. Mientras tanto, Cade Yeager, un mécánico inventor, encuentra un Marmon semi-trailer. Al intentar repararlo, descubre que el camión no solo era un Transformer, sino también el mismísimo Optimus Prime, líder de los Autobots. Lo que Cade ignora son las consecuencias que pueden derivarse de este hallazgo.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS9kdjc0Y2JudzZhb20=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- TRANSFORMERS: EL ÚLTIMO CABALLERO -->
+
+<!-- Modal de Transformers: El Último Caballero -->
+<div id="movieLastKnight2017" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieLastKnight2017')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/pLaHXumbd79wpVD9yGFyD3AmjhS.jpg" alt="Transformers: El Último Caballero">
+        <h3>TRANSFORMERS: EL ÚLTIMO CABALLERO</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2017</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Acción, Aventura, Ciencia ficción</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 34 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Dos especies en guerra: una de carne y hueso, la otra de metal. El Último Caballero rompe con el mito original de la franquicia de Transformers y redefine lo que significa ser un héroe. Humanos y Transformers están en guerra y Optimus Prime se ha ido. La llave para salvar nuestro futuro está enterrada en los secretos del pasado, en la historia oculta de los Transformers en la Tierra. Salvar a nuestro mundo está en manos de una alianza única: Cade Yeager (Mark Wahlberg); Bumblebee; un Lord Inglés (Sir Anthony Hopkins); y una profesora de la Universidad de Oxford (Laura Haddock). Hay un momento en la vida de todo ser humano en la que recibimos el llamado para hacer la diferencia. En Transformers: El Último Caballero los perseguidos se convertirán en héroes; los héroes se convertirán en villanos y sólo un mundo sobrevivirá: el de ellos o el nuestro. Quinta película de Transformers dirigida por Michael Bay.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9zd2lzaHNydi5jb20vZS8yd2Y3Ymk2dnA3bG8=" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "EL ORIGEN DEL PLANETA DE LOS SIMIOS" -->
+
+<!-- EL ORIGEN DEL PLANETA DE LOS SIMIOS -->
+
+<!-- Modal de El Origen del Planeta de los Simios -->
+<div id="movieRiseOfThePlanetOfTheApes2011" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieRiseOfThePlanetOfTheApes2011')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/oscN6Hm4OMKIy6ITFot3ZuwMQa2.jpg" alt="El Origen del Planeta de los Simios">
+        <h3>EL ORIGEN DEL PLANETA DE LOS SIMIOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2011</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Suspenso, Acción, Drama, Ciencia ficción</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 1h 44 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Will Rodman es un joven científico que está investigando con monos para obtener un tratamiento contra el alzheimer, una enfermedad que afecta a su padre. Uno de esos primates, al que llaman César, experimenta una evolución en su inteligencia tan notable que el protagonista decide llevárselo a su casa para protegerlo. Le ayudará una bella primatóloga llamada Caroline.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2tsYWpxcWE5ZnNnZg==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- EL AMANECER DEL PLANETA DE LOS SIMIOS -->
+
+<!-- Modal de El Amanecer del Planeta de los Simios -->
+<div id="movieDawnOfThePlanetOfTheApes2014" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieDawnOfThePlanetOfTheApes2014')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/nIcZlG4DuAinlEkUzSIEmXy3F5v.jpg" alt="El Amanecer del Planeta de los Simios">
+        <h3>EL AMANECER DEL PLANETA DE LOS SIMIOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2014</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Ciencia ficción, Acción, Drama, Suspenso</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 10 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Un grupo de simios con grandes cualidades para la supervivencia toma las calles, liderado por César, un simio dotado de una inteligencia y unos instintos superiores para cualquier primate. Ante la necesidad de libertad, esta raza animal decide no doblegarse ante los humanos. Tendrá que luchar contra un grupo de humanos que han sobrevivido a una fuerte epidemia, desatada en la década anterior. Ambas partes han establecido una tregua, pero se verá interrumpida.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL3A2N29sazMyc3V5NA==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- LA GUERRA DEL PLANETA DE LOS SIMIOS -->
+
+<!-- Modal de La Guerra del Planeta de los Simios -->
+<div id="movieWarForThePlanetOfTheApes2017" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieWarForThePlanetOfTheApes2017')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/mMA1qhBFgZX8O36qPPTC016kQl1.jpg" alt="La Guerra del Planeta de los Simios">
+        <h3>LA GUERRA DEL PLANETA DE LOS SIMIOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2017</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Drama, Ciencia ficción, Bélica</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 20 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> César y sus monos son forzados a encarar un conflicto mortal contra un ejército de humanos liderado por un brutal coronel. Después de sufrir pérdidas enormes, César lucha con sus instintos más oscuros en una búsqueda por vengar a su especie. Cuando finalmente se encuentren, Cesar y el Coronel protagonizarán una batalla que pondrá en juego el futuro de ambas especies y el del mismo planeta. Tercera película de la nueva saga de El Planeta de los Simios.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzI5cGR5bWw4bzhnOQ==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- EL REINO DEL PLANETA DE LOS SIMIOS -->
+
+<!-- Modal de El Reino del Planeta de los Simios -->
+<div id="movieTheKingdomOfThePlanetOfTheApes2024" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieTheKingdomOfThePlanetOfTheApes2024')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg" alt="El Reino del Planeta de los Simios">
+        <h3>EL REINO DEL PLANETA DE LOS SIMIOS</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2024</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Ciencia ficción, Aventura, Acción</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 24 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Ambientada varias generaciones en el futuro tras el reinado de César, en la que los simios son la especie dominante que vive en armonía y los humanos se han visto reducidos a vivir en la sombra. Mientras un nuevo y tiránico líder simio construye su imperio, un joven simio emprende un angustioso viaje que le llevará a cuestionarse todo lo que sabe sobre el pasado y a tomar decisiones que definirán el futuro de simios y humanos por igual.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL3JhdmlqeTdkNWU3Ng==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "JOKER" -->
+
+<!-- JOKER -->
+
+<!-- Modal de Joker -->
+<div id="movieJoker2019" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieJoker2019')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/mZuAPY4ETMQPHhCXIcJ90kd6RaS.jpg" alt="Joker">
+        <h3>JOKER</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2019</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Crimen, Suspenso, Drama</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 1 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Arthur Fleck es un hombre ignorado por la sociedad, cuya motivación en la vida es hacer reír. Pero una serie de trágicos acontecimientos le llevarán a ver el mundo de otra forma. Película basada en Joker, el popular personaje de DC Comics y archivillano de Batman, pero que en este film toma un cariz más realista y oscuro.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2s3d3U2Y3VoZnMwOQ==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- JOKER: FOLIE Á DEUX -->
+
+<!-- Modal de Joker: Folie à Deux -->
+<div id="movieJokerFolieADeux2024" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieJokerFolieADeux2024')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/if8QiqCI7WAGImKcJCfzp6VTyKA.jpg" alt="Joker: Folie à Deux">
+        <h3>JOKER: FOLIE À DEUX</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2024</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Drama, Crimen, Suspense</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 17 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Secuela de "Joker (2019), de nuevo con Phoenix como Arthur Fleck, y que muestra su relación con el personaje de Harley Quinn, interpretado por Lady Gaga.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzJrNDByYjBwb3B6aA==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "MISIÓN DE RESCATE" -->
+
+<!-- MISIÓN DE RESCATE -->
+
+<!-- Modal de Misión de Rescate -->
+<div id="movieMisionRescate1" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieMisionRescate1')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/tChL0WfXuSSg5EhuWySPil8wFz9.jpg" alt="Misión de Rescate 1">
+        <h3>MISIÓN DE RESCATE</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2020</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Acción, Suspenso</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 1h 57 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Tyler Rake, un intrépido mercenario que ofrece sus servicios en el mercado negro, emprende una peligrosa misión cuando es contratado para rescatar al hijo secuestrado de un señor del crimen de Bombay.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lL2lseTh4aXFwcXVkYw==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- MISIÓN DE RESCATE 2 -->
+
+<!-- Modal de Misión de Rescate 2 -->
+<div id="movieMisionRescate2" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieMisionRescate2')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/7gKI9hpEMcZUQpNgKrkDzJpbnNS.jpg" alt="Misión de Rescate 2">
+        <h3>MISIÓN DE RESCATE 2</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2023</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Acción, Suspenso</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 3 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> El agente altamente entrenado Tyler Rake regresa del umbral de la muerte con otra peligrosa misión: rescatar a la familia de un mafioso despiadado.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9pcGxheWVyaGxzLmNvbS9lLzBya2tkYzlocG0wYg==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- AQUI ESTA LA SAGA DE "SMILE" -->
+
+<!-- SMILE -->
+
+<!-- Modal de "Smile" -->
+<div id="movieSmile2022" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieSmile2022')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/aPqcQwu4VGEewPhagWNncDbJ9Xp.jpg" alt="Smile">
+        <h3>SMILE</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2022</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Terror, Misterio</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 1h 55 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> Tras presenciar un extraño y traumático incidente con un paciente, la doctora Rose Cotter comienza a experimentar sucesos aterradores que no puede explicar. A medida que un miedo sobrecogedor comienza a afectar a todos los aspectos de su vida, Rose se verá obligada a afrontar a su problemático pasado para sobrevivir y escapar de su terrorífica nueva realidad.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9naGJyaXNrLmNvbS9lL3o5bHkxOGNjaG8xMA==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+<!-- SMILE 2 -->
+
+<!-- MODAL de "Smile 2" -->
+<div id="movieSmile2Upcoming" class="modal">
+    <div class="modal-content-movie">
+        <span class="close" onclick="closeModal('movieSmile2Upcoming')">&times;</span>
+        <img src="https://image.tmdb.org/t/p/original/ht8Uv9QPv9y7K0RvUyJIaXOZTfd.jpg" alt="Smile 2">
+        <h3>SMILE 2</h3>
+        <p><i class="fas fa-calendar"></i> <strong>Año:</strong> 2024</p>
+        <p><i class="fas fa-film"></i> <strong>Género:</strong> Terror, Misterio</p>
+        <p><i class="fas fa-clock"></i> <strong>Duración:</strong> 2h 9 mins</p>
+        <p><i class="fas fa-book"></i> <strong>Sinopsis:</strong> La estrella del pop mundial Skye Riley está a punto de embarcarse en una nueva gira mundial cuando empieza a experimentar una serie de sucesos cada vez más aterradores e inexplicables. Skye tendrá que enfrentarse a su oscuro pasado para recuperar el control de su vida antes de que sea demasiado tarde.</p>
+        <a href="https://vpn-movie-ofc.blogspot.com/2024/05/embed_27.html?r=aHR0cHM6Ly9naGJyaXNrLmNvbS9lL3RyaGpia2ppM3EydQ==" class="button" target="_blank">VER PELÍCULA</a>
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    function openMovieModal(movieId) {
+        document.getElementById(movieId).style.display = "block";
+    }
+</script>
+
 </body>
-</html>
-</html>
+    </html>
